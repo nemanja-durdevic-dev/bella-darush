@@ -52,11 +52,13 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
   const [selectedServiceGroupById, setSelectedServiceGroupById] = useState<Record<string, string>>(
     {},
   )
+  const [stickyHeaderByGroupId, setStickyHeaderByGroupId] = useState<Record<string, boolean>>({})
   const [openGroupIds, setOpenGroupIds] = useState<string[]>(() => {
     const firstGroupId = groupedServices[0]?.id
     return firstGroupId ? [firstGroupId] : []
   })
   const formRef = useRef<HTMLFormElement | null>(null)
+  const headerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [buttonBounds, setButtonBounds] = useState({ left: 0, width: 0 })
 
   const hasSelection = selectedServiceIds.length > 0
@@ -76,6 +78,34 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
       window.removeEventListener('resize', updateButtonBounds)
     }
   }, [])
+
+  useEffect(() => {
+    function updateStickyHeaders() {
+      const nextStickyState: Record<string, boolean> = {}
+
+      for (const group of groupedServices) {
+        const header = headerRefs.current[group.id]
+        if (!header) {
+          nextStickyState[group.id] = false
+          continue
+        }
+
+        const rect = header.getBoundingClientRect()
+        nextStickyState[group.id] = rect.top <= 0 && rect.bottom > 0
+      }
+
+      setStickyHeaderByGroupId(nextStickyState)
+    }
+
+    updateStickyHeaders()
+    window.addEventListener('scroll', updateStickyHeaders, { passive: true })
+    window.addEventListener('resize', updateStickyHeaders)
+
+    return () => {
+      window.removeEventListener('scroll', updateStickyHeaders)
+      window.removeEventListener('resize', updateStickyHeaders)
+    }
+  }, [groupedServices])
 
   function toggleService(serviceId: string, groupId: string) {
     const isAlreadySelected = selectedServiceIds.includes(serviceId)
@@ -119,20 +149,32 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
     >
       {groupedServices.map((group) => {
         const isOpen = openGroupIds.includes(group.id)
+        const isSticky = stickyHeaderByGroupId[group.id]
 
         return (
           <section key={group.id} className="space-y-2">
             <button
+              ref={(element) => {
+                headerRefs.current[group.id] = element
+              }}
               type="button"
               onClick={() => toggleGroup(group.id)}
-              className="flex w-full items-center justify-between border border-slate-200 bg-white px-4 py-3 text-left transition-colors hover:bg-slate-50"
+              className={`sticky top-0 z-20 flex w-full items-center justify-between border bg-white px-4 py-3 text-left transition-colors hover:bg-slate-50 ${
+                isSticky ? 'border-black' : 'border-slate-200'
+              }`}
               aria-expanded={isOpen}
               aria-controls={`group-panel-${group.id}`}
             >
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <h2
+                className={`text-xs font-semibold uppercase tracking-wide ${
+                  isSticky ? 'text-black' : 'text-slate-500'
+                }`}
+              >
                 {group.name}
               </h2>
-              <span className="text-xs text-slate-500">{isOpen ? '−' : '+'}</span>
+              <span className={`text-xs ${isSticky ? 'text-black' : 'text-slate-500'}`}>
+                {isOpen ? '−' : '+'}
+              </span>
             </button>
 
             <AnimatePresence initial={false}>
