@@ -4,7 +4,7 @@ import Image from 'next/image'
 const About = () => {
   return (
     <div id="about">
-      <div className="w-full max-w-[95rem] mx-auto flex flex-col md:flex-row py-16 md:py-28">
+      <div className="w-full max-w-[95rem] mx-auto flex flex-col md:flex-row pt-16 md:pt-24">
         <div className="w-full flex justify-center items-center h-full px-6">
           <Image
             src="/salon-img.jpg"
