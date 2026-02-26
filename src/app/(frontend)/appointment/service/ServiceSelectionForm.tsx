@@ -53,10 +53,9 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
     {},
   )
   const [stickyHeaderByGroupId, setStickyHeaderByGroupId] = useState<Record<string, boolean>>({})
-  const [openGroupIds, setOpenGroupIds] = useState<string[]>(() => {
-    const firstGroupId = groupedServices[0]?.id
-    return firstGroupId ? [firstGroupId] : []
-  })
+  const [openGroupIds, setOpenGroupIds] = useState<string[]>(() =>
+    groupedServices.map((group) => group.id),
+  )
   const formRef = useRef<HTMLFormElement | null>(null)
   const headerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [buttonBounds, setButtonBounds] = useState({ left: 0, width: 0 })
