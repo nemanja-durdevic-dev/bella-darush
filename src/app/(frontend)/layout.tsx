@@ -1,9 +1,18 @@
 import React from 'react'
 import './styles.css'
+import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface'
+import { Poppins } from 'next/font/google'
 
-export const metadata = {
-  description: 'A blank template using Payload in a Next.js app.',
-  title: 'Payload Blank Template',
+const poppins = Poppins({
+  variable: '--font-poppins',
+  subsets: ['latin'],
+  weight: ['200'],
+})
+
+export const metadata: Metadata = {
+  title: 'Bella Frisør',
+  description:
+    'Moderne barbersalong med eksperter i hårklipp og skjeggpleie, hvor du kan booke time online for en stilfull opplevelse.',
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
@@ -11,9 +20,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   return (
     <html lang="en">
-      <body>
-        <main>{children}</main>
-      </body>
+      <body className={`${poppins.variable} antialiased`}>{children}</body>
     </html>
   )
 }
