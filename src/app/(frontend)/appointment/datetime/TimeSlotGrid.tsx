@@ -77,11 +77,14 @@ export function TimeSlotGrid({
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3">
-        <span className="text-sm text-muted-foreground">Velg person:</span>
+      <div className="mb-4 flex items-center justify-between gap-3  border border-slate-200 bg-white px-4 py-3">
+        <span className="text-sm text-slate-600">Velg person:</span>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" className="min-w-[150px] justify-between">
+            <Button
+              variant="outline"
+              className="min-w-[150px] justify-between border-slate-300 bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900"
+            >
               <span className="flex items-center gap-2">
                 {selectedWorker?.imageUrl ? (
                   <img
@@ -90,7 +93,7 @@ export function TimeSlotGrid({
                     className="h-6 w-6 rounded-full object-cover"
                   />
                 ) : selectedWorker ? (
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-600">
                     {getInitials(selectedWorker.name)}
                   </span>
                 ) : null}
@@ -99,10 +102,10 @@ export function TimeSlotGrid({
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="border-slate-200 bg-white text-slate-900">
             <DialogHeader>
-              <DialogTitle>Velg person</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-slate-900">Velg person</DialogTitle>
+              <DialogDescription className="text-slate-600">
                 Velg en spesifikk behandler eller hvem som helst.
               </DialogDescription>
             </DialogHeader>
@@ -110,6 +113,11 @@ export function TimeSlotGrid({
               <Button
                 type="button"
                 variant={!selectedWorkerId ? 'default' : 'outline'}
+                className={
+                  !selectedWorkerId
+                    ? 'bg-[#c89e58] text-black hover:bg-[#b98e49]'
+                    : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900'
+                }
                 onClick={() => handleWorkerSelect()}
               >
                 {ANY_WORKER_LABEL}
@@ -119,7 +127,11 @@ export function TimeSlotGrid({
                   key={worker.id}
                   type="button"
                   variant={selectedWorkerId === worker.id ? 'default' : 'outline'}
-                  className="justify-start gap-2"
+                  className={`justify-start gap-2 ${
+                    selectedWorkerId === worker.id
+                      ? 'bg-[#c89e58] text-black hover:bg-[#b98e49]'
+                      : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900'
+                  }`}
                   onClick={() => handleWorkerSelect(worker.id)}
                 >
                   {worker.imageUrl ? (
@@ -129,7 +141,7 @@ export function TimeSlotGrid({
                       className="h-6 w-6 rounded-full object-cover"
                     />
                   ) : (
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-600">
                       {getInitials(worker.name)}
                     </span>
                   )}
@@ -159,11 +171,11 @@ export function TimeSlotGrid({
                       key={`${day.day}-${time}`}
                       type="button"
                       variant="outline"
-                      className="h-auto justify-between py-3"
+                      className="h-auto justify-between border-slate-300 bg-white py-3 text-slate-900 hover:bg-slate-50 hover:text-slate-900"
                       onClick={() => handleTimeSelect(day.day, time)}
                     >
                       <span className="font-medium">{time}</span>
-                      <span className="text-sm text-muted-foreground">{`${totalPrice} kr`}</span>
+                      <span className="text-sm text-[#c89e58]">{`${totalPrice} kr`}</span>
                     </Button>
                   ))}
                 </div>
@@ -172,8 +184,8 @@ export function TimeSlotGrid({
           })}
         </div>
       ) : (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
+        <Card className="border-slate-200 bg-white text-slate-900 shadow-none">
+          <CardContent className="py-8 text-center text-slate-600">
             <p>Ingen ledige tider tilgjengelig for valgte tjenester</p>
           </CardContent>
         </Card>

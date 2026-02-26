@@ -44,7 +44,12 @@ export function CancelAppointmentButton({ token, customerName }: CancelAppointme
   }
 
   return (
-    <Button onClick={handleCancel} disabled={isPending} variant="destructive" className="w-full">
+    <Button
+      onClick={handleCancel}
+      disabled={isPending}
+      variant="destructive"
+      className="w-full border border-red-500/60 bg-red-700 text-white hover:bg-red-800"
+    >
       {isPending ? (
         <>
           <Loader2 className="h-5 w-5 animate-spin" />

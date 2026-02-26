@@ -27,12 +27,12 @@ export default async function ServiceSelectionPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Velg en tjeneste</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Hvilken tjeneste ønsker du?</p>
+        <p className="mt-2 text-sm text-slate-600">Hvilken tjeneste ønsker du?</p>
       </div>
 
       {services.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
+        <Card className="border-slate-200 bg-white text-slate-900 shadow-none">
+          <CardContent className="py-8 text-center text-slate-600">
             <p>Ingen tjenester tilgjengelige for øyeblikket</p>
           </CardContent>
         </Card>
@@ -42,7 +42,7 @@ export default async function ServiceSelectionPage() {
             <Label
               key={service.id}
               htmlFor={`service-${service.id}`}
-              className="flex cursor-pointer items-center justify-between rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
+              className="flex cursor-pointer items-center justify-between border border-slate-200 bg-white p-4 transition-colors hover:bg-slate-50"
             >
               <div className="flex items-center gap-3">
                 <input
@@ -50,11 +50,11 @@ export default async function ServiceSelectionPage() {
                   type="checkbox"
                   name="service"
                   value={service.id}
-                  className="h-4 w-4 rounded border-input"
+                  className="h-4 w-4 border border-slate-300 accent-[#c89e58]"
                 />
                 <div>
-                  <p className="text-sm font-medium text-card-foreground">{service.name}</p>
-                  <span className="text-sm text-muted-foreground">
+                  <p className="text-sm font-medium text-slate-900">{service.name}</p>
+                  <span className="text-sm text-slate-600">
                     {service.duration} min • {service.price} kr
                   </span>
                 </div>
@@ -64,7 +64,7 @@ export default async function ServiceSelectionPage() {
 
           <Button
             type="submit"
-            className="mt-2 hidden w-full group-has-[input[name='service']:checked]:inline-flex sm:w-auto"
+            className="mt-2 hidden w-full border border-[#c89e58] bg-[#c89e58] text-black transition hover:bg-[#b98e49] group-has-[input[name='service']:checked]:inline-flex sm:w-auto"
           >
             Fortsett
           </Button>

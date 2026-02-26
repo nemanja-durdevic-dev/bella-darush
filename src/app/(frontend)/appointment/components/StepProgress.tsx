@@ -23,10 +23,10 @@ export function StepProgress() {
 
   return (
     <div className="mb-8 space-y-2">
-      <span className="text-sm text-muted-foreground">
+      <span className="text-sm text-slate-600">
         Steg {step.number} av {step.total}
       </span>
-      <Progress value={progress} />
+      <Progress value={progress} className="bg-slate-200 [&>div]:bg-[#c89e58]" />
     </div>
   )
 }

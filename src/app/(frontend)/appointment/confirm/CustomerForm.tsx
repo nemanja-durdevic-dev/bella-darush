@@ -42,56 +42,69 @@ export function CustomerForm({ serviceIds, workerId, date, time }: CustomerFormP
       {/* Customer information fields */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="customerName">Fullt navn</Label>
+          <Label htmlFor="customerName" className="text-slate-700">
+            Fullt navn
+          </Label>
           <Input
             type="text"
             id="customerName"
             name="customerName"
             required
             placeholder="Ola Nordmann"
+            className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
             disabled={isPending}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="customerPhone">Telefon</Label>
+          <Label htmlFor="customerPhone" className="text-slate-700">
+            Telefon
+          </Label>
           <Input
             type="tel"
             id="customerPhone"
             name="customerPhone"
             required
             placeholder="+47 123 45 678"
+            className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
             disabled={isPending}
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="customerEmail">E-post</Label>
+        <Label htmlFor="customerEmail" className="text-slate-700">
+          E-post
+        </Label>
         <Input
           type="email"
           id="customerEmail"
           name="customerEmail"
           required
           placeholder="ola@eksempel.no"
+          className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
           disabled={isPending}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">
-          Merknad <span className="text-muted-foreground">(valgfritt)</span>
+        <Label htmlFor="notes" className="text-slate-700">
+          Merknad <span className="text-slate-500">(valgfritt)</span>
         </Label>
         <Textarea
           id="notes"
           name="notes"
-          className="min-h-[100px]"
+          className="min-h-[100px] border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
           placeholder="Eventuelle ønsker eller informasjon..."
           disabled={isPending}
         />
       </div>
 
-      <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
+      <Button
+        type="submit"
+        className="w-full border border-[#c89e58] bg-[#c89e58] text-black transition hover:bg-[#b98e49] sm:w-auto"
+        disabled={isPending}
+      >
         {isPending ? 'Bestiller...' : 'Bekreft bestilling'}
       </Button>
     </form>

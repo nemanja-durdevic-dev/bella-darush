@@ -4,9 +4,10 @@ import {
   getAvailableTimeSlotsForNext9Days,
 } from '../actions'
 import { datetimeStepSchema } from '../validation'
-import { redirect, notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { BackButton } from '../components/BackButton'
 import { TimeSlotGrid } from './TimeSlotGrid'
+import { Card, CardContent } from '@/components/ui/card'
 
 export default async function DateTimeSelectionPage({
   searchParams,
@@ -26,12 +27,23 @@ export default async function DateTimeSelectionPage({
   const services = await getServicesByIds(serviceIds)
 
   if (!services.length) {
-    notFound()
+    redirect('/appointment/service')
   }
 
   const workers = await getWorkersForServices(serviceIds)
   if (!workers.length) {
-    notFound()
+    return (
+      <div className="space-y-4">
+        <BackButton href="/appointment/service" />
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Velg tid</h1>
+        <Card className="border-slate-200 bg-white text-slate-900 shadow-none">
+          <CardContent className="py-8 text-center text-slate-600">
+            <p>Ingen behandlere er tilgjengelige for de valgte tjenestene akkurat nå.</p>
+            <p className="mt-2 text-sm">Prøv å velge en annen tjeneste.</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   const selectedWorkerId =
