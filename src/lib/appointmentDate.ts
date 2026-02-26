@@ -52,13 +52,17 @@ export function formatAppointmentDateNorwegian(dateInput: string | Date): string
     return String(dateInput)
   }
 
-  return new Intl.DateTimeFormat('nb-NO', {
+  const formattedDate = new Intl.DateTimeFormat('nb-NO', {
     timeZone: APPOINTMENT_TIMEZONE,
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   }).format(date)
+
+  return formattedDate.replace(/\p{L}[\p{L}\p{M}]*/gu, (word) => {
+    return word.charAt(0).toLocaleUpperCase('nb-NO') + word.slice(1)
+  })
 }
 
 export function getNowInAppointmentTimezone(): { date: string; time: string } {

@@ -102,7 +102,7 @@ export function CustomerForm({ serviceIds, workerId, date, time }: CustomerFormP
 
       <Button
         type="submit"
-        className="w-full border border-[#c89e58] bg-[#c89e58] text-black transition hover:bg-[#b98e49] sm:w-auto"
+        className="h-12 w-full border border-[#c89e58] bg-[#c89e58] text-black transition hover:bg-[#b98e49]"
         disabled={isPending}
       >
         {isPending ? 'Bestiller...' : 'Bekreft bestilling'}

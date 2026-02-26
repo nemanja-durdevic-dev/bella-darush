@@ -47,9 +47,6 @@ export default async function CancelAppointmentPage({
   if (appointment.status === 'cancelled') {
     return (
       <div className="mx-auto max-w-[600px] space-y-4 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-950/80 text-red-200">
-          <AlertTriangle className="h-8 w-8" />
-        </div>
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
           Avtale allerede avbestilt
         </h1>
@@ -79,9 +76,6 @@ export default async function CancelAppointmentPage({
   if (appointmentHasPassed) {
     return (
       <div className="mx-auto max-w-[600px] space-y-4 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-950/80 text-red-200">
-          <AlertTriangle className="h-8 w-8" />
-        </div>
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
           Avtale har allerede funnet sted
         </h1>
@@ -103,13 +97,7 @@ export default async function CancelAppointmentPage({
   // Show cancellation confirmation page
   return (
     <div className="mx-auto max-w-[600px] space-y-4 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#c89e58] text-black">
-        <AlertTriangle className="h-8 w-8" />
-      </div>
-
-      <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Avbestill din avtale</h1>
-
-      <Card className="border-slate-200 bg-white text-left text-slate-900 shadow-none">
+      <Card className=" bg-white text-left text-slate-900 shadow-none border-none">
         <CardContent className="space-y-6 pt-6">
           <div className="grid gap-6">
             <div className="text-center">
@@ -140,9 +128,9 @@ export default async function CancelAppointmentPage({
             </div>
           )}
 
-          <div className="rounded-lg border border-[#c89e58]/50 bg-[#c89e58]/20 p-4 text-center">
-            <AlertTriangle className="mx-auto mb-2 h-5 w-5 text-[#e5be7d]" />
-            <div className="text-sm leading-relaxed text-[#f3dfbd]">
+          <div className="rounded-lg border border-[#fc4141]/50 bg-[#fc4141]/10 p-4 text-center">
+            <AlertTriangle className="mx-auto mb-2 h-5 w-5 text-[#fc4141]" />
+            <div className="text-sm leading-relaxed text-[#fc4141]">
               <strong>Viktig:</strong> Hvis du avbestiller denne avtalen, vil du motta en
               bekreftelse på e-post. Vennligst gi beskjed minst 24 timer i forveien hvis mulig.
             </div>

@@ -23,7 +23,7 @@ export default function AppointmentLayout({ children }: { children: React.ReactN
         </Link>
       </div>
       <main className="mx-auto w-full max-w-5xl px-4 pb-14 pt-6 sm:px-6 sm:pt-8 lg:px-8">
-        <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-2 sm:p-8">
+        <div className="mx-auto w-full rounded-2xl bg-white">
           <StepProgress />
           {children}
         </div>
