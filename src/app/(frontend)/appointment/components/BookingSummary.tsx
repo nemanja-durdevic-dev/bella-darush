@@ -12,22 +12,22 @@ export function BookingSummary({ services, worker, date, time }: BookingSummaryP
       <CardContent className="pt-6">
         <div className="flex items-center justify-between border-b border-slate-200 py-3">
           <span className="text-sm text-slate-600">Tjeneste</span>
-          <span className="text-right font-medium">{serviceNames}</span>
+          <span className="text-right text-sm font-medium">{serviceNames}</span>
         </div>
         <div className="flex items-center justify-between border-b border-slate-200 py-3">
           <span className="text-sm text-slate-600">Behandler</span>
-          <span className="text-right font-medium">{worker.name}</span>
+          <span className="text-right text-sm font-medium">{worker.name}</span>
         </div>
         <div className="flex items-center justify-between border-b border-slate-200 py-3">
           <span className="text-sm text-slate-600">Tidspunkt</span>
-          <span className="text-right font-medium">
+          <span className="text-right text-sm font-medium">
             <span className="capitalize">{formatAppointmentDateNorwegian(date)}</span>{' '}
             <span>kl. {time}</span>
           </span>
         </div>
         <div className="flex items-center justify-between py-3">
           <span className="text-sm text-slate-600">Pris</span>
-          <span className="text-right font-semibold text-[#c89e58]">{totalPrice} kr</span>
+          <span className="text-right text-sm font-semibold text-[#c89e58]">{totalPrice} kr</span>
         </div>
       </CardContent>
     </Card>

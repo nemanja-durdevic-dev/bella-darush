@@ -50,7 +50,7 @@ export function CustomerForm({ serviceIds, workerId, date, time }: CustomerFormP
             id="customerName"
             name="customerName"
             required
-            placeholder="Ola Nordmann"
+            placeholder="Marco Polo"
             className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
             disabled={isPending}
           />
@@ -81,7 +81,7 @@ export function CustomerForm({ serviceIds, workerId, date, time }: CustomerFormP
           id="customerEmail"
           name="customerEmail"
           required
-          placeholder="ola@eksempel.no"
+          placeholder="marco@eksempel.no"
           className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
           disabled={isPending}
         />

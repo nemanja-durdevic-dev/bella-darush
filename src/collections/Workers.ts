@@ -40,6 +40,13 @@ export const Workers: CollectionConfig = {
       type: 'text',
     },
     {
+      name: 'description',
+      type: 'textarea',
+      admin: {
+        description: 'Short description shown when selecting a worker',
+      },
+    },
+    {
       name: 'profileImage',
       type: 'upload',
       relationTo: 'media',

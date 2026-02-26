@@ -247,6 +247,10 @@ export interface Worker {
   email: string;
   phone?: string | null;
   /**
+   * Short description shown when selecting a worker
+   */
+  description?: string | null;
+  /**
    * Profile image for this worker
    */
   profileImage?: (string | null) | Media;
@@ -606,6 +610,7 @@ export interface WorkersSelect<T extends boolean = true> {
   name?: T;
   email?: T;
   phone?: T;
+  description?: T;
   profileImage?: T;
   services?: T;
   workingHours?:

@@ -26,7 +26,7 @@ export interface BookingSummaryProps {
 export interface TimeSlotGridProps {
   serviceIds: string[]
   selectedWorkerId?: string
-  workers: Array<{ id: string; name: string; imageUrl?: string }>
+  workers: Array<{ id: string; name: string; imageUrl?: string; description?: string | null }>
   weekSlots: Array<{ day: string; timeslots: string[] }>
   slotWorkerMap: Record<string, string>
   totalPrice: number

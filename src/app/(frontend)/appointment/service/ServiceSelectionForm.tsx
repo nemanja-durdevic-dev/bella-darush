@@ -7,6 +7,37 @@ import type { Service } from '@/payload-types'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
+const MAX_SERVICE_DESCRIPTION_LENGTH = 40
+
+type RichTextNode = {
+  text?: string
+  children?: unknown
+}
+
+function extractTextFromRichTextNode(node: unknown): string {
+  if (!node || typeof node !== 'object') return ''
+
+  const typedNode = node as RichTextNode
+  const ownText = typeof typedNode.text === 'string' ? typedNode.text : ''
+  const childrenText = Array.isArray(typedNode.children)
+    ? typedNode.children.map(extractTextFromRichTextNode).join(' ')
+    : ''
+
+  return [ownText, childrenText].filter(Boolean).join(' ').trim()
+}
+
+function getServiceDescriptionText(service: Service): string {
+  if (!service.description?.root) return ''
+
+  return extractTextFromRichTextNode(service.description.root).replace(/\s+/g, ' ').trim()
+}
+
+function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text
+
+  return `${text.slice(0, maxLength - 1).trimEnd()}…`
+}
+
 type ServiceSelectionFormProps = {
   groupedServices: Array<{
     id: string
@@ -18,6 +49,9 @@ type ServiceSelectionFormProps = {
 
 export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormProps) {
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([])
+  const [selectedServiceGroupById, setSelectedServiceGroupById] = useState<Record<string, string>>(
+    {},
+  )
   const [openGroupIds, setOpenGroupIds] = useState<string[]>(() => {
     const firstGroupId = groupedServices[0]?.id
     return firstGroupId ? [firstGroupId] : []
@@ -43,12 +77,24 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
     }
   }, [])
 
-  function toggleService(serviceId: string) {
-    setSelectedServiceIds((previous) =>
-      previous.includes(serviceId)
-        ? previous.filter((id) => id !== serviceId)
-        : [...previous, serviceId],
-    )
+  function toggleService(serviceId: string, groupId: string) {
+    const isAlreadySelected = selectedServiceIds.includes(serviceId)
+
+    if (isAlreadySelected) {
+      setSelectedServiceIds((previous) => previous.filter((id) => id !== serviceId))
+      setSelectedServiceGroupById((previous) => {
+        const next = { ...previous }
+        delete next[serviceId]
+        return next
+      })
+      return
+    }
+
+    setSelectedServiceIds((previous) => [...previous, serviceId])
+    setSelectedServiceGroupById((previous) => ({
+      ...previous,
+      [serviceId]: groupId,
+    }))
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -106,28 +152,49 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
                   {group.services.map((service) => {
                     const serviceId = String(service.id)
                     const inputId = `service-${group.id}-${serviceId}`
-                    const isChecked = selectedServiceIds.includes(serviceId)
+                    const selectedGroupId = selectedServiceGroupById[serviceId]
+                    const isSelectedAnywhere = selectedServiceIds.includes(serviceId)
+                    const isChecked = selectedGroupId === group.id
+                    const isHiddenInThisGroup = isSelectedAnywhere && selectedGroupId !== group.id
+
+                    if (isHiddenInThisGroup) {
+                      return null
+                    }
+
+                    const fullDescription = getServiceDescriptionText(service)
+                    const visibleDescription = isChecked
+                      ? fullDescription
+                      : truncateText(fullDescription, MAX_SERVICE_DESCRIPTION_LENGTH)
 
                     return (
                       <Label
                         key={serviceId}
                         htmlFor={inputId}
-                        className="flex w-full cursor-pointer items-center justify-between border border-slate-200 bg-white p-4 transition-colors hover:bg-slate-50"
+                        className={`block w-full cursor-pointer border border-slate-200 p-4 transition-colors  ${
+                          isChecked
+                            ? 'bg-[#c89e58]/20 border-[#c89e58]'
+                            : 'bg-white hover:bg-slate-50'
+                        }`}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-start gap-3">
                           <input
                             id={inputId}
                             type="checkbox"
                             checked={isChecked}
-                            onChange={() => toggleService(serviceId)}
+                            onChange={() => toggleService(serviceId, group.id)}
                             className="h-4 w-4 border border-slate-300 accent-[#c89e58]"
                           />
-                          <p className="text-sm font-medium text-slate-900">{service.name}</p>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-sm text-slate-600">
-                            {service.duration} min • {service.price} kr
-                          </span>
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <div className="flex items-start justify-between gap-3">
+                              <p className="text-sm font-medium text-slate-900">{service.name}</p>
+                              <span className="shrink-0 text-sm text-slate-600">
+                                {service.duration} min • {service.price} kr
+                              </span>
+                            </div>
+                            {visibleDescription ? (
+                              <p className="text-xs text-slate-500">{visibleDescription}</p>
+                            ) : null}
+                          </div>
                         </div>
                       </Label>
                     )

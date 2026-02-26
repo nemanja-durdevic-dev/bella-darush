@@ -103,6 +103,7 @@ export default async function DateTimeSelectionPage({
         workers={workers.map((worker) => ({
           id: worker.id,
           name: worker.name,
+          description: worker.description,
           imageUrl:
             worker.profileImage && typeof worker.profileImage !== 'string'
               ? (worker.profileImage.url ?? undefined)

@@ -102,50 +102,52 @@ export function TimeSlotGrid({
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="border-slate-200 bg-white text-slate-900">
+          <DialogContent className="top-6 translate-y-0 border-slate-200 bg-white text-slate-900 sm:top-10">
             <DialogHeader>
               <DialogTitle className="text-slate-900">Velg person</DialogTitle>
               <DialogDescription className="text-slate-600">
                 Velg en spesifikk behandler eller hvem som helst.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-2">
+            <div className="grid min-w-0 gap-2">
               <Button
                 type="button"
                 variant={!selectedWorkerId ? 'default' : 'outline'}
-                className={
-                  !selectedWorkerId
-                    ? 'bg-[#c89e58] text-black hover:bg-[#b98e49]'
-                    : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900'
-                }
+                className="w-full bg-black text-white hover:bg-black/90 hover:text-white"
                 onClick={() => handleWorkerSelect()}
               >
                 {ANY_WORKER_LABEL}
               </Button>
+              <div className="flex items-center gap-3 py-1">
+                <span className="h-px flex-1 bg-slate-200" />
+                <span className="text-xs uppercase tracking-wide text-slate-500">eller</span>
+                <span className="h-px flex-1 bg-slate-200" />
+              </div>
               {workers.map((worker) => (
                 <Button
                   key={worker.id}
                   type="button"
                   variant={selectedWorkerId === worker.id ? 'default' : 'outline'}
-                  className={`justify-start gap-2 ${
-                    selectedWorkerId === worker.id
-                      ? 'bg-[#c89e58] text-black hover:bg-[#b98e49]'
-                      : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900'
-                  }`}
+                  className={`h-auto min-h-16 w-full max-w-full items-start justify-start gap-4 whitespace-normal border px-4 py-4 border-slate-300 bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900`}
                   onClick={() => handleWorkerSelect(worker.id)}
                 >
                   {worker.imageUrl ? (
                     <img
                       src={worker.imageUrl}
                       alt={worker.name}
-                      className="h-6 w-6 rounded-full object-cover"
+                      className="h-10 w-10 rounded-full object-cover"
                     />
                   ) : (
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-600">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm font-medium text-slate-600">
                       {getInitials(worker.name)}
                     </span>
                   )}
-                  <span>{worker.name}</span>
+                  <span className="flex min-w-0 flex-1 flex-col items-start text-left">
+                    <span className="text-base font-medium">{worker.name}</span>
+                    {worker.description ? (
+                      <span className="text-xs leading-5 opacity-80">{worker.description}</span>
+                    ) : null}
+                  </span>
                 </Button>
               ))}
             </div>
