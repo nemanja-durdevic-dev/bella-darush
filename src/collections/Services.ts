@@ -1,8 +1,8 @@
 import type { CollectionConfig } from 'payload'
-import { activeOnly } from '../access'
 
 export const Services: CollectionConfig = {
   slug: 'services',
+  defaultSort: 'name',
   admin: {
     useAsTitle: 'name',
     group: '🧩 Core Entities',

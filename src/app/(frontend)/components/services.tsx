@@ -51,7 +51,7 @@ const Services = async () => {
 
   return (
     <section id="services" className="w-full bg-white py-16 md:py-24">
-      <div className="mx-auto w-full max-w-5xl px-6">
+      <div className="mx-auto w-full max-w-[95rem] px-6">
         <h2 className="text-lg font-bold tracking-wider text-gray-800">VÅRE TJENESTER</h2>
         {/* <p className="mt-3 max-w-2xl text-3xl font-bold tracking-wide text-black">
           Velg blant våre behandlinger

@@ -8,6 +8,7 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { ServiceGroups } from './collections/ServiceGroups'
 import { Services } from './collections/Services'
 import { Workers } from './collections/Workers'
 import { BusinessHours } from './collections/BusinessHours'
@@ -28,6 +29,7 @@ export default buildConfig({
   collections: [
     Users,
     Media,
+    ServiceGroups,
     Services,
     Workers,
     BusinessHours,

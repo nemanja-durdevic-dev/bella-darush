@@ -24,7 +24,7 @@ const Landing = () => {
 
       {/* Content goes here */}
       <div className="relative z-10 flex items-center h-full">
-        <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[95rem] w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-white space-y-6 md:space-y-10 max-w-3xl mt-20 md:mt-20 lg:mt-56">
             <div className="space-y-4">
               <motion.h1
@@ -54,8 +54,8 @@ const Landing = () => {
               className="flex flex-col sm:flex-row gap-4"
             >
               <Link
-                href="/appointment/service"
-                className="text-white bg-[#c89e58] transition px-6 sm:px-10 py-3 sm:py-4 hover:bg-white hover:text-black text-center"
+                href="/appointment"
+                className="text-white bg-[#c89e58]  transition px-6 sm:px-10 py-3 sm:py-4 hover:bg-white hover:text-black text-center"
               >
                 Book Time
               </Link>

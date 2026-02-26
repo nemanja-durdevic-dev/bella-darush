@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    'service-groups': ServiceGroup;
     services: Service;
     workers: Worker;
     'business-hours': BusinessHour;
@@ -84,6 +85,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'service-groups': ServiceGroupsSelect<false> | ServiceGroupsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     workers: WorkersSelect<false> | WorkersSelect<true>;
     'business-hours': BusinessHoursSelect<false> | BusinessHoursSelect<true>;
@@ -169,6 +171,34 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-groups".
+ */
+export interface ServiceGroup {
+  id: string;
+  name: string;
+  description?: string | null;
+  /**
+   * Lower values appear first for groups
+   */
+  sortOrder: number;
+  /**
+   * Assign services to this group. Drag rows to set order within the group
+   */
+  services?:
+    | {
+        service: string | Service;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Whether this group is available for selection
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -428,6 +458,10 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
+        relationTo: 'service-groups';
+        value: string | ServiceGroup;
+      } | null)
+    | ({
         relationTo: 'services';
         value: string | Service;
       } | null)
@@ -532,6 +566,24 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-groups_select".
+ */
+export interface ServiceGroupsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  sortOrder?: T;
+  services?:
+    | T
+    | {
+        service?: T;
+        id?: T;
+      };
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -20,10 +20,28 @@ export async function getServices() {
   const services = await payload.find({
     collection: 'services',
     where: { isActive: { equals: true } },
+    depth: 1,
     sort: 'name',
     limit: 100,
   })
   return services.docs
+}
+
+/**
+ * Get active service groups with services ordered inside each group
+ */
+export async function getServiceGroupsForBooking() {
+  const payload = await getPayload({ config })
+
+  const groups = await payload.find({
+    collection: 'service-groups',
+    where: { isActive: { equals: true } },
+    sort: 'sortOrder',
+    depth: 1,
+    limit: 100,
+  })
+
+  return groups.docs
 }
 
 /**
