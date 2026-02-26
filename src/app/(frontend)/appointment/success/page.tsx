@@ -42,7 +42,7 @@ export default async function SuccessPage({
 
   return (
     <div className="space-y-4 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#c89e58] text-black">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#e3f1e1] text-[#68e72c]">
         <Check className="h-8 w-8" />
       </div>
       <h1 className="text-3xl font-semibold tracking-tight text-slate-900">

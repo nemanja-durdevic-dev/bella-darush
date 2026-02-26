@@ -80,8 +80,8 @@ export const emailStyles = {
   body: `
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.6;
-    color: #333333;
-    background-color: #f5f5f5;
+    color: #0f172a;
+    background-color: #f8fafc;
     margin: 0;
     padding: 0;
   `,
@@ -95,28 +95,27 @@ export const emailStyles = {
     text-align: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 3px solid #4F46E5;
+    border-bottom: 2px solid #c89e58;
   `,
   title: `
-    color: #1a1a1a;
+    color: #0f172a;
     font-size: 28px;
     font-weight: 600;
     margin: 0 0 10px 0;
   `,
   subtitle: `
-    color: #666666;
+    color: #475569;
     font-size: 16px;
     margin: 0;
   `,
   section: `
     margin: 30px 0;
     padding: 20px;
-    background-color: #f9fafb;
-    border-radius: 8px;
-    border-left: 4px solid #4F46E5;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
   `,
   sectionTitle: `
-    color: #1a1a1a;
+    color: #0f172a;
     font-size: 18px;
     font-weight: 600;
     margin: 0 0 15px 0;
@@ -128,20 +127,20 @@ export const emailStyles = {
   `,
   label: `
     font-weight: 600;
-    color: #4b5563;
+    color: #475569;
     min-width: 120px;
     display: inline-block;
   `,
   value: `
-    color: #1a1a1a;
+    color: #0f172a;
   `,
   button: `
     display: inline-block;
     padding: 14px 28px;
-    background-color: #4F46E5;
-    color: #ffffff;
+    background-color: #c89e58;
+    color: #000000;
     text-decoration: none;
-    border-radius: 6px;
+    border: 1px solid #c89e58;
     font-weight: 600;
     font-size: 16px;
     margin: 20px 0;
@@ -149,24 +148,22 @@ export const emailStyles = {
   footer: `
     margin-top: 40px;
     padding-top: 20px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid #e2e8f0;
     text-align: center;
-    color: #6b7280;
+    color: #64748b;
     font-size: 14px;
   `,
   warning: `
-    background-color: #fef3c7;
-    border-left: 4px solid #f59e0b;
+    background-color: #fff7e8;
+    border: 1px solid #c89e58;
     padding: 15px;
     margin: 20px 0;
-    border-radius: 4px;
   `,
   success: `
-    background-color: #d1fae5;
-    border-left: 4px solid #10b981;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
     padding: 15px;
     margin: 20px 0;
-    border-radius: 4px;
   `,
 }
 
@@ -193,7 +190,7 @@ export function htmlEmailWrapper(content: string, preheader?: string): string {
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0;">
           <tr>
             <td style="padding: 40px 30px;">
               ${content}

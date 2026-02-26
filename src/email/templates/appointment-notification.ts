@@ -40,10 +40,10 @@ export function generateNotificationHTML(data: NotificationEmailData): string {
     </div>
 
     <div style="${emailStyles.success}">
-      <p style="margin: 0; color: #065f46; font-weight: 600; font-size: 18px;">
+      <p style="margin: 0; color: #0f172a; font-weight: 600; font-size: 18px;">
         Ny kunde: ${customer.name}
       </p>
-      <p style="margin: 10px 0 0 0; color: #065f46;">
+      <p style="margin: 10px 0 0 0; color: #475569;">
         ${formatDate(appointment.appointmentDate)} kl. ${formatTime(appointment.appointmentTime)}
       </p>
     </div>
@@ -59,7 +59,7 @@ export function generateNotificationHTML(data: NotificationEmailData): string {
       <div style="${emailStyles.infoRow}">
         <span style="${emailStyles.label}">E-post:</span>
         <span style="${emailStyles.value}">
-          <a href="mailto:${customer.email}" style="color: #4F46E5; text-decoration: none;">
+          <a href="mailto:${customer.email}" style="color: #c89e58; text-decoration: none;">
             ${customer.email}
           </a>
         </span>
@@ -68,7 +68,7 @@ export function generateNotificationHTML(data: NotificationEmailData): string {
       <div style="${emailStyles.infoRow}">
         <span style="${emailStyles.label}">Telefon:</span>
         <span style="${emailStyles.value}">
-          <a href="tel:${customer.phone}" style="color: #4F46E5; text-decoration: none;">
+          <a href="tel:${customer.phone}" style="color: #c89e58; text-decoration: none;">
             ${customer.phone}
           </a>
         </span>
@@ -111,7 +111,7 @@ export function generateNotificationHTML(data: NotificationEmailData): string {
       <div style="${emailStyles.infoRow}">
         <span style="${emailStyles.label}">Status:</span>
         <span style="${emailStyles.value}">
-          <span style="background-color: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 600;">
+          <span style="background-color: #f8fafc; color: #0f172a; padding: 4px 12px; border: 1px solid #cbd5e1; font-size: 14px; font-weight: 600;">
             Bekreftet
           </span>
         </span>
@@ -123,7 +123,7 @@ export function generateNotificationHTML(data: NotificationEmailData): string {
         ? `
     <div style="${emailStyles.section}">
       <h2 style="${emailStyles.sectionTitle}">📝 Kundens notater</h2>
-      <p style="margin: 0; color: #4b5563; background-color: #ffffff; padding: 15px; border-radius: 6px; border: 1px solid #e5e7eb;">
+      <p style="margin: 0; color: #475569; background-color: #ffffff; padding: 15px; border: 1px solid #e2e8f0;">
         ${appointment.notes}
       </p>
     </div>

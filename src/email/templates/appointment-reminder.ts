@@ -8,7 +8,6 @@ import {
   emailStyles,
   formatDate,
   formatDuration,
-  formatPrice,
   formatServiceNames,
   formatTime,
   htmlEmailWrapper,
@@ -36,10 +35,10 @@ export function generateReminderHTML(data: ReminderEmailData): string {
     </div>
 
     <div style="${emailStyles.success}">
-      <p style="margin: 0; color: #065f46; font-weight: 600; font-size: 18px;">
+      <p style="margin: 0; color: #0f172a; font-weight: 600; font-size: 18px;">
         Hei ${customer.name}!
       </p>
-      <p style="margin: 10px 0 0 0; color: #065f46;">
+      <p style="margin: 10px 0 0 0; color: #475569;">
         Dette er en påminnelse om din kommende avtale i morgen.
       </p>
     </div>
@@ -59,7 +58,7 @@ export function generateReminderHTML(data: ReminderEmailData): string {
 
       <div style="${emailStyles.infoRow}">
         <span style="${emailStyles.label}">Tid:</span>
-        <span style="${emailStyles.value}"><strong style="font-size: 20px; color: #4F46E5;">${formatTime(appointment.appointmentTime)}</strong></span>
+        <span style="${emailStyles.value}"><strong style="font-size: 20px; color: #c89e58;">${formatTime(appointment.appointmentTime)}</strong></span>
       </div>
 
       <div style="${emailStyles.infoRow}">
@@ -78,10 +77,10 @@ export function generateReminderHTML(data: ReminderEmailData): string {
     </div>
 
     <div style="${emailStyles.warning}">
-      <p style="margin: 0 0 10px 0; color: #92400e; font-weight: 600;">
+      <p style="margin: 0 0 10px 0; color: #0f172a; font-weight: 600;">
         💡 Husk!
       </p>
-      <p style="margin: 0; color: #92400e; font-size: 14px;">
+      <p style="margin: 0; color: #475569; font-size: 14px;">
         Vennligst møt opp 5 minutter før avtalt tid. Hvis du trenger å avbestille eller endre tiden, vennligst gi beskjed så snart som mulig.
       </p>
     </div>
@@ -91,7 +90,7 @@ export function generateReminderHTML(data: ReminderEmailData): string {
         ? `
     <div style="${emailStyles.section}">
       <h2 style="${emailStyles.sectionTitle}">📝 Dine notater</h2>
-      <p style="margin: 0; color: #4b5563;">${appointment.notes}</p>
+      <p style="margin: 0; color: #475569;">${appointment.notes}</p>
     </div>
     `
         : ''

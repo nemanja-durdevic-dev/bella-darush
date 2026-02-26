@@ -35,11 +35,11 @@ export function generateCancellationHTML(data: CancellationEmailData): string {
       <p style="${emailStyles.subtitle}">Din avtale har blitt kansellert</p>
     </div>
 
-    <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 4px;">
-      <p style="margin: 0; color: #991b1b; font-weight: 600;">
+    <div style="${emailStyles.warning}">
+      <p style="margin: 0; color: #0f172a; font-weight: 600;">
         Hei ${customer.name}
       </p>
-      <p style="margin: 10px 0 0 0; color: #991b1b;">
+      <p style="margin: 10px 0 0 0; color: #475569;">
         Din avtale har blitt avbestilt. Vi håper å se deg igjen snart!
       </p>
     </div>
@@ -75,10 +75,10 @@ export function generateCancellationHTML(data: CancellationEmailData): string {
 
     <div style="${emailStyles.section}">
       <h2 style="${emailStyles.sectionTitle}">💡 Ønsker du å bestille på nytt?</h2>
-      <p style="margin: 0 0 10px 0; color: #4b5563;">
+      <p style="margin: 0 0 10px 0; color: #475569;">
         Vi er her for deg når du er klar! Kontakt oss for å bestille en ny tid.
       </p>
-      <p style="margin: 5px 0; color: #4b5563;">Ta kontakt med oss for hjelp.</p>
+      <p style="margin: 5px 0; color: #475569;">Ta kontakt med oss for hjelp.</p>
     </div>
 
     <div style="${emailStyles.footer}">

@@ -41,10 +41,10 @@ export function generateConfirmationHTML(data: ConfirmationEmailData): string {
     </div>
 
     <div style="${emailStyles.success}">
-      <p style="margin: 0; color: #065f46; font-weight: 600;">
+      <p style="margin: 0; color: #0f172a; font-weight: 600;">
         Hei ${customer.name}!
       </p>
-      <p style="margin: 10px 0 0 0; color: #065f46;">
+      <p style="margin: 10px 0 0 0; color: #475569;">
         Takk for din bestilling. Vi gleder oss til å se deg!
       </p>
     </div>
@@ -92,20 +92,20 @@ export function generateConfirmationHTML(data: ConfirmationEmailData): string {
         ? `
     <div style="${emailStyles.section}">
       <h2 style="${emailStyles.sectionTitle}">📝 Dine notater</h2>
-      <p style="margin: 0; color: #4b5563;">${appointment.notes}</p>
+      <p style="margin: 0; color: #475569;">${appointment.notes}</p>
     </div>
     `
         : ''
     }
 
-    <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0; border-radius: 4px; text-align: center;">
-      <h2 style="margin: 0 0 15px 0; color: #1e40af; font-size: 18px; font-weight: 600;">
+    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; margin: 30px 0; text-align: center;">
+      <h2 style="margin: 0 0 15px 0; color: #0f172a; font-size: 18px; font-weight: 600;">
         Trenger du å avbestille eller endre tiden?
       </h2>
-      <p style="margin: 0 0 20px 0; color: #1e40af; font-size: 14px;">
+      <p style="margin: 0 0 20px 0; color: #475569; font-size: 14px;">
         Du kan enkelt avbestille avtalen din ved å klikke på knappen nedenfor.
       </p>
-      <a href="${cancellationUrl}" style="${emailStyles.button} background-color: #3b82f6;">
+      <a href="${cancellationUrl}" style="${emailStyles.button}">
         Avbestill avtale
       </a>
       <p style="margin: 15px 0 0 0; color: #64748b; font-size: 12px;">
