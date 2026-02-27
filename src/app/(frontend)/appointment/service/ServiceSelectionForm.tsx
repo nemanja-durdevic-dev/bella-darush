@@ -3,6 +3,7 @@
 import type { FormEvent } from 'react'
 import { useEffect, useState, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import type { Service } from '@/payload-types'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -44,6 +45,7 @@ export function ServiceSelectionForm({
   groupedServices,
   nextAvailableLabelByServiceId = {},
 }: ServiceSelectionFormProps) {
+  const router = useRouter()
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([])
   const [selectedServiceGroupById, setSelectedServiceGroupById] = useState<Record<string, string>>(
     {},
@@ -120,19 +122,22 @@ export function ServiceSelectionForm({
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
     if (!hasSelection) {
-      event.preventDefault()
+      return
     }
+
+    const query = new URLSearchParams()
+    selectedServiceIds.forEach((serviceId) => {
+      query.append('service', serviceId)
+    })
+
+    router.push(`/appointment/datetime?${query.toString()}`)
   }
 
   return (
-    <form
-      ref={formRef}
-      action="/appointment/datetime"
-      method="get"
-      onSubmit={handleSubmit}
-      className="space-y-3 pb-36 sm:pb-28"
-    >
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-3 pb-36 sm:pb-28">
       {groupedServices.map((group) => {
         const isSticky = stickyHeaderByGroupId[group.id]
 
@@ -221,10 +226,6 @@ export function ServiceSelectionForm({
           </section>
         )
       })}
-
-      {selectedServiceIds.map((serviceId) => (
-        <input key={serviceId} type="hidden" name="service" value={serviceId} />
-      ))}
 
       <AnimatePresence initial={false}>
         {hasSelection ? (
