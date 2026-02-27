@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { ChevronDown } from 'lucide-react'
@@ -44,6 +44,17 @@ export function TimeSlotGrid({
     [weekSlots],
   )
   const selectedWorker = workers.find((worker) => worker.id === selectedWorkerId)
+
+  useEffect(() => {
+    const imageUrls = workers
+      .map((worker) => worker.imageUrl)
+      .filter((imageUrl): imageUrl is string => Boolean(imageUrl))
+
+    imageUrls.forEach((url) => {
+      const preloader = new window.Image()
+      preloader.src = url
+    })
+  }, [workers])
 
   const getDatetimeQuery = (workerId?: string) => {
     const query = new URLSearchParams()

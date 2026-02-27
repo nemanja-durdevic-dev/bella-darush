@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { anyone } from '../access'
+import { adminOnly } from '../access'
 import { preventDoubleBooking } from '../hooks/preventDoubleBooking'
 import { validateServiceWorker } from '../hooks/validateServiceWorker'
 import { sendAppointmentEmails } from '../hooks/sendAppointmentEmails'
@@ -26,8 +26,10 @@ export const Appointments: CollectionConfig = {
     ],
   },
   access: {
-    read: ({ req }) => req.user?.collection === 'users',
-    create: anyone, // Keep booking flow open
+    read: adminOnly,
+    create: adminOnly,
+    update: adminOnly,
+    delete: adminOnly,
   },
   hooks: {
     beforeChange: [generateCancellationToken, validateServiceWorker, preventDoubleBooking],
