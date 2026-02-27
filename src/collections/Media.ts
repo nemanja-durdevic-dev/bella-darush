@@ -13,5 +13,6 @@ export const Media: CollectionConfig = {
       required: true,
     },
   ],
+  // Do NOT set any public or access property here; privacy is controlled by the storage adapter in payload.config.ts
   upload: true,
 }
