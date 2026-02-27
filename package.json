@@ -1,7 +1,7 @@
 {
-  "name": "service-app-boilerplate",
+  "name": "bella-darush",
   "version": "1.0.0",
-  "description": "A blank template to get started with Payload 3.0",
+  "description": "A Next.js application built with Payload CMS, featuring a custom admin dashboard and a public-facing website for Bella Frisør.",
   "license": "MIT",
   "type": "module",
   "scripts": {

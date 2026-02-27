@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import { motion } from 'framer-motion'
@@ -7,17 +8,14 @@ import { motion } from 'framer-motion'
 const Landing = () => {
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      {/* Video background */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover"
-        autoPlay
-        muted
-        loop
-        playsInline
-      >
-        <source src="/landing-page-video.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+      <Image
+        src="/landing-page.webp"
+        alt="Bella salon landing"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover"
+      />
 
       {/* Black overlay */}
       <div className="absolute inset-0 bg-black/80"></div>
