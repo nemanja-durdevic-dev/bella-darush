@@ -5,6 +5,8 @@ import Header from './components/header'
 import Landing from './components/landing'
 import Services from './components/services'
 
+export const revalidate = 300
+
 export default async function HomePage() {
   return (
     <div>

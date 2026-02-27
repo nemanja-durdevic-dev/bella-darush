@@ -30,20 +30,25 @@ function getServiceDescription(service: Service): string {
 }
 
 async function getActiveServices(): Promise<Service[]> {
-  const payload = await getPayload({ config })
+  try {
+    const payload = await getPayload({ config })
 
-  const { docs } = await payload.find({
-    collection: 'services',
-    where: {
-      isActive: {
-        equals: true,
+    const { docs } = await payload.find({
+      collection: 'services',
+      where: {
+        isActive: {
+          equals: true,
+        },
       },
-    },
-    sort: 'name',
-    limit: 100,
-  })
+      sort: 'name',
+      limit: 100,
+    })
 
-  return docs
+    return docs
+  } catch (error) {
+    console.error('Failed to fetch active services:', error)
+    return []
+  }
 }
 
 const Services = async () => {
