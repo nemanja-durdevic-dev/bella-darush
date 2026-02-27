@@ -11,31 +11,31 @@ export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): P
   );
   
   ALTER TABLE "locations" DISABLE ROW LEVEL SECURITY;
-  DROP TABLE "locations" CASCADE;
-  ALTER TABLE "workers_rels" DROP CONSTRAINT "workers_rels_locations_fk";
+  DROP TABLE IF EXISTS "locations" CASCADE;
+  ALTER TABLE "workers_rels" DROP CONSTRAINT IF EXISTS "workers_rels_locations_fk";
   
-  ALTER TABLE "business_hours" DROP CONSTRAINT "business_hours_location_id_locations_id_fk";
+  ALTER TABLE "business_hours" DROP CONSTRAINT IF EXISTS "business_hours_location_id_locations_id_fk";
   
-  ALTER TABLE "schedule_overrides" DROP CONSTRAINT "schedule_overrides_location_id_locations_id_fk";
+  ALTER TABLE "schedule_overrides" DROP CONSTRAINT IF EXISTS "schedule_overrides_location_id_locations_id_fk";
   
-  ALTER TABLE "appointments" DROP CONSTRAINT "appointments_location_id_locations_id_fk";
+  ALTER TABLE "appointments" DROP CONSTRAINT IF EXISTS "appointments_location_id_locations_id_fk";
   
-  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_locations_fk";
+  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_locations_fk";
   
-  DROP INDEX "workers_rels_locations_id_idx";
-  DROP INDEX "business_hours_location_idx";
-  DROP INDEX "schedule_overrides_location_idx";
-  DROP INDEX "appointments_location_idx";
-  DROP INDEX "payload_locked_documents_rels_locations_id_idx";
+  DROP INDEX IF EXISTS "workers_rels_locations_id_idx";
+  DROP INDEX IF EXISTS "business_hours_location_idx";
+  DROP INDEX IF EXISTS "schedule_overrides_location_idx";
+  DROP INDEX IF EXISTS "appointments_location_idx";
+  DROP INDEX IF EXISTS "payload_locked_documents_rels_locations_id_idx";
   ALTER TABLE "schedule_overrides_time_ranges" ADD CONSTRAINT "schedule_overrides_time_ranges_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."schedule_overrides"("id") ON DELETE cascade ON UPDATE no action;
   CREATE INDEX "schedule_overrides_time_ranges_order_idx" ON "schedule_overrides_time_ranges" USING btree ("_order");
   CREATE INDEX "schedule_overrides_time_ranges_parent_id_idx" ON "schedule_overrides_time_ranges" USING btree ("_parent_id");
-  ALTER TABLE "workers_rels" DROP COLUMN "locations_id";
-  ALTER TABLE "business_hours" DROP COLUMN "location_id";
-  ALTER TABLE "schedule_overrides" DROP COLUMN "location_id";
-  ALTER TABLE "appointments" DROP COLUMN "location_id";
-  ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "locations_id";
-  DROP TYPE "public"."enum_locations_timezone";`)
+  ALTER TABLE "workers_rels" DROP COLUMN IF EXISTS "locations_id";
+  ALTER TABLE "business_hours" DROP COLUMN IF EXISTS "location_id";
+  ALTER TABLE "schedule_overrides" DROP COLUMN IF EXISTS "location_id";
+  ALTER TABLE "appointments" DROP COLUMN IF EXISTS "location_id";
+  ALTER TABLE "payload_locked_documents_rels" DROP COLUMN IF EXISTS "locations_id";
+  DROP TYPE IF EXISTS "public"."enum_locations_timezone";`)
 }
 
 export async function down({ db, payload: _payload, req: _req }: MigrateDownArgs): Promise<void> {
