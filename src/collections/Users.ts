@@ -8,12 +8,12 @@ export const Users: CollectionConfig = {
     group: '👔 Admin',
   },
   auth: true,
-  access: {
-    read: adminOnly,
-    create: adminOnly,
-    update: adminOnly,
-    delete: adminOnly,
-  },
+  // access: {
+  //   read: adminOnly,
+  //   create: adminOnly,
+  //   update: adminOnly,
+  //   delete: adminOnly,
+  // },
   fields: [
     // Email added by default
     // Add more fields as needed
