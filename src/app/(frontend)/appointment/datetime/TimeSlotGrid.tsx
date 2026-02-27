@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { ChevronDown } from 'lucide-react'
 import type { TimeSlotGridProps } from '../types'
 import { Button } from '@/components/ui/button'
@@ -87,9 +88,11 @@ export function TimeSlotGrid({
             >
               <span className="flex items-center gap-2">
                 {selectedWorker?.imageUrl ? (
-                  <img
+                  <Image
                     src={selectedWorker.imageUrl}
                     alt={selectedWorker.name}
+                    width={24}
+                    height={24}
                     className="h-6 w-6 rounded-full object-cover"
                   />
                 ) : selectedWorker ? (
@@ -132,9 +135,11 @@ export function TimeSlotGrid({
                   onClick={() => handleWorkerSelect(worker.id)}
                 >
                   {worker.imageUrl ? (
-                    <img
+                    <Image
                       src={worker.imageUrl}
                       alt={worker.name}
+                      width={40}
+                      height={40}
                       className="h-10 w-10 rounded-full object-cover"
                     />
                   ) : (

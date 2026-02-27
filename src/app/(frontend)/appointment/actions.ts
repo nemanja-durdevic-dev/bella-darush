@@ -778,16 +778,6 @@ function getLocalDayRange(date: string): { startOfDay: string; endOfDay: string 
   return { startOfDay: start.toISOString(), endOfDay: end.toISOString() }
 }
 
-function getStartOfWeek(date: string): Date {
-  const [year, month, day] = date.split('-').map(Number)
-  const d = new Date(year, month - 1, day)
-  const dayOfWeek = d.getDay() // 0=Sunday, 1=Monday
-  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-  d.setDate(d.getDate() + diff)
-  d.setHours(0, 0, 0, 0)
-  return d
-}
-
 function addDays(date: Date, days: number): Date {
   const d = new Date(date)
   d.setDate(d.getDate() + days)

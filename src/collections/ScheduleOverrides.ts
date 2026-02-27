@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import { anyone } from '../access'
 
 const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/
 

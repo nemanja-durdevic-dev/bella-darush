@@ -1,6 +1,6 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-vercel-postgres'
 
-export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
    CREATE TABLE "service_groups" (
   	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
@@ -39,7 +39,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "appointments" DROP COLUMN "service_id";`)
 }
 
-export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+export async function down({ db, payload: _payload, req: _req }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
    ALTER TABLE "service_groups" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "appointments_rels" DISABLE ROW LEVEL SECURITY;

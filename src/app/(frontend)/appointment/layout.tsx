@@ -2,7 +2,6 @@ import React from 'react'
 import { StepProgress } from './components/StepProgress'
 import Link from 'next/link'
 import { Scissors } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 export const metadata = {
   title: 'Bestill time | Service App',

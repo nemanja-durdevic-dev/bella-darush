@@ -8,7 +8,6 @@ import {
   emailStyles,
   formatDate,
   formatDuration,
-  formatPrice,
   formatServiceNames,
   formatTime,
   htmlEmailWrapper,

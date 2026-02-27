@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import { anyone } from '../access'
 
 const DAYS_OF_WEEK = [
   { label: 'Monday', value: 'monday' },
