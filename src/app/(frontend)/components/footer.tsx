@@ -37,7 +37,7 @@ const Footer = () => {
   return (
     <footer id="contact" className="bg-[#101010] relative pt-16">
       <div className="px-4 pt-8">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+        <div className="max-w-[95rem] mx-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-0">
           <div className="text-center sm:text-left">
             <div className="flex justify-center sm:justify-start">
               <Link
@@ -110,7 +110,10 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-            <div className="mt-6">
+          </div>
+          {/* Social Links */}
+          <div className="text-center sm:text-left">
+            <div>
               <h3 className="text-white font-semibold text-lg mb-3">Følg oss</h3>
               <div className="flex items-center justify-center sm:justify-start gap-4 text-gray-300">
                 <Link
