@@ -166,7 +166,9 @@ export function TimeSlotGrid({
 
             return (
               <div key={day.day} className="space-y-2">
-                <h3 className="text-sm font-semibold capitalize text-slate-900">{dayLabel}</h3>
+                <div className="sticky top-0 z-10 bg-white py-1">
+                  <h3 className="text-sm font-semibold capitalize text-slate-900">{dayLabel}</h3>
+                </div>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {day.timeslots.map((time) => (
                     <Button

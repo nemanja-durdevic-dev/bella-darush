@@ -91,6 +91,66 @@ export async function getWorkersForService(serviceId: string) {
   return getWorkersForServices([serviceId])
 }
 
+type NextAvailableServiceSlot = {
+  day: string
+  time: string
+}
+
+/**
+ * Get the next available appointment slot for each service ID
+ */
+export async function getNextAvailableSlotsForServices(
+  serviceIds: string[],
+): Promise<Record<string, NextAvailableServiceSlot | null>> {
+  const uniqueServiceIds = Array.from(new Set(serviceIds.filter(Boolean)))
+
+  if (uniqueServiceIds.length === 0) {
+    return {}
+  }
+
+  const nowInTimezone = getNowInAppointmentTimezone()
+
+  const entries = await Promise.all(
+    uniqueServiceIds.map(async (serviceId) => {
+      const workers = await getWorkersForService(serviceId)
+
+      if (workers.length === 0) {
+        return [serviceId, null] as const
+      }
+
+      const weekSlotsByWorker = await Promise.all(
+        workers.map((worker) =>
+          getAvailableTimeSlotsForNext9Days(
+            String(worker.id),
+            [serviceId],
+            nowInTimezone.date,
+            nowInTimezone.time,
+          ),
+        ),
+      )
+
+      let earliestSlot: NextAvailableServiceSlot | null = null
+
+      for (const weekSlots of weekSlotsByWorker) {
+        for (const daySlot of weekSlots) {
+          for (const time of daySlot.timeslots) {
+            if (
+              !earliestSlot ||
+              `${daySlot.day}T${time}` < `${earliestSlot.day}T${earliestSlot.time}`
+            ) {
+              earliestSlot = { day: daySlot.day, time }
+            }
+          }
+        }
+      }
+
+      return [serviceId, earliestSlot] as const
+    }),
+  )
+
+  return Object.fromEntries(entries)
+}
+
 /**
  * Get workers available for all selected services
  */

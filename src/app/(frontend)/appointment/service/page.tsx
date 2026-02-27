@@ -1,13 +1,29 @@
-import { getServiceGroupsForBooking } from '../actions'
+import { getServiceGroupsForBooking, getNextAvailableSlotsForServices } from '../actions'
 import { Card, CardContent } from '@/components/ui/card'
 import { ServiceSelectionForm } from './ServiceSelectionForm'
 import type { Service, ServiceGroup } from '@/payload-types'
+import { getNowInAppointmentTimezone } from '@/lib/appointmentDate'
 
 type GroupedServices = {
   id: string
   name: string
   description?: string | null
   services: Service[]
+}
+
+function formatNextAvailableLabel(day: string, time: string, today: string): string {
+  if (day === today) {
+    return `I dag kl. ${time}`
+  }
+
+  const date = new Date(`${day}T12:00:00`)
+  const dayLabel = new Intl.DateTimeFormat('nb-NO', {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+  }).format(date)
+
+  return `${dayLabel} kl. ${time}`
 }
 
 function mapGroupsForDisplay(groups: ServiceGroup[]): GroupedServices[] {
@@ -41,6 +57,22 @@ export default async function ServiceSelectionPage() {
   const groups = await getServiceGroupsForBooking()
   const groupedServices = mapGroupsForDisplay(groups)
 
+  const serviceIds = Array.from(
+    new Set(
+      groupedServices.flatMap((group) => group.services.map((service) => String(service.id))),
+    ),
+  )
+
+  const nextAvailableByServiceId = await getNextAvailableSlotsForServices(serviceIds)
+  const today = getNowInAppointmentTimezone().date
+
+  const nextAvailableLabelByServiceId = Object.fromEntries(
+    Object.entries(nextAvailableByServiceId).map(([serviceId, slot]) => [
+      serviceId,
+      slot ? formatNextAvailableLabel(slot.day, slot.time, today) : null,
+    ]),
+  )
+
   return (
     <div className="space-y-6">
       <div>
@@ -55,7 +87,10 @@ export default async function ServiceSelectionPage() {
           </CardContent>
         </Card>
       ) : (
-        <ServiceSelectionForm groupedServices={groupedServices} />
+        <ServiceSelectionForm
+          groupedServices={groupedServices}
+          nextAvailableLabelByServiceId={nextAvailableLabelByServiceId}
+        />
       )}
     </div>
   )

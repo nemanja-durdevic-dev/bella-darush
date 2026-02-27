@@ -7,8 +7,6 @@ import type { Service } from '@/payload-types'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
-const MAX_SERVICE_DESCRIPTION_LENGTH = 40
-
 type RichTextNode = {
   text?: string
   children?: unknown
@@ -32,12 +30,6 @@ function getServiceDescriptionText(service: Service): string {
   return extractTextFromRichTextNode(service.description.root).replace(/\s+/g, ' ').trim()
 }
 
-function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text
-
-  return `${text.slice(0, maxLength - 1).trimEnd()}…`
-}
-
 type ServiceSelectionFormProps = {
   groupedServices: Array<{
     id: string
@@ -45,9 +37,13 @@ type ServiceSelectionFormProps = {
     description?: string | null
     services: Service[]
   }>
+  nextAvailableLabelByServiceId?: Record<string, string | null>
 }
 
-export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormProps) {
+export function ServiceSelectionForm({
+  groupedServices,
+  nextAvailableLabelByServiceId = {},
+}: ServiceSelectionFormProps) {
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([])
   const [selectedServiceGroupById, setSelectedServiceGroupById] = useState<Record<string, string>>(
     {},
@@ -177,9 +173,7 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
                 }
 
                 const fullDescription = getServiceDescriptionText(service)
-                const visibleDescription = isChecked
-                  ? fullDescription
-                  : truncateText(fullDescription, MAX_SERVICE_DESCRIPTION_LENGTH)
+                const nextAvailableLabel = nextAvailableLabelByServiceId[serviceId]
 
                 return (
                   <Label
@@ -189,7 +183,7 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
                       isChecked ? 'bg-[#c89e58]/20 border-[#c89e58]' : 'bg-white hover:bg-slate-50'
                     }`}
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-center gap-3">
                       <input
                         id={inputId}
                         type="checkbox"
@@ -204,11 +198,22 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
                             {service.duration} min • {service.price} kr
                           </span>
                         </div>
-                        {visibleDescription ? (
-                          <p className="text-xs text-slate-500">{visibleDescription}</p>
-                        ) : null}
                       </div>
                     </div>
+                    {fullDescription ? (
+                      <p className={`text-xs text-slate-500 ${isChecked ? '' : 'truncate'}`}>
+                        {fullDescription}
+                      </p>
+                    ) : null}
+
+                    {nextAvailableLabel ? (
+                      <p className="text-xs text-slate-500 text-right border-t border-dashed border-black pt-4 mt-4">
+                        Neste time:{' '}
+                        <span className="p-2 bg-slate-100 text-slate-700">
+                          {nextAvailableLabel}
+                        </span>
+                      </p>
+                    ) : null}
                   </Label>
                 )
               })}
