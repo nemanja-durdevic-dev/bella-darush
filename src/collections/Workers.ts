@@ -17,12 +17,12 @@ export const Workers: CollectionConfig = {
     group: '🧩 Core Entities',
     defaultColumns: ['name', 'email', 'isActive'],
   },
-  access: {
-    read: ({ req }) => req.user?.collection === 'users',
-    create: ({ req }) => req.user?.collection === 'users',
-    update: ({ req }) => req.user?.collection === 'users',
-    delete: ({ req }) => req.user?.collection === 'users',
-  },
+  // access: {
+  //   read: ({ req }) => req.user?.collection === 'users',
+  //   create: ({ req }) => req.user?.collection === 'users',
+  //   update: ({ req }) => req.user?.collection === 'users',
+  //   delete: ({ req }) => req.user?.collection === 'users',
+  // },
   fields: [
     {
       name: 'name',
