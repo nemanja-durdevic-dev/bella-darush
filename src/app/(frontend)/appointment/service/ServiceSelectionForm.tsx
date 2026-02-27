@@ -53,11 +53,8 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
     {},
   )
   const [stickyHeaderByGroupId, setStickyHeaderByGroupId] = useState<Record<string, boolean>>({})
-  const [openGroupIds, setOpenGroupIds] = useState<string[]>(() =>
-    groupedServices.map((group) => group.id),
-  )
   const formRef = useRef<HTMLFormElement | null>(null)
-  const headerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const headerRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const [buttonBounds, setButtonBounds] = useState({ left: 0, width: 0 })
 
   const hasSelection = selectedServiceIds.length > 0
@@ -132,12 +129,6 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
     }
   }
 
-  function toggleGroup(groupId: string) {
-    setOpenGroupIds((previous) =>
-      previous.includes(groupId) ? previous.filter((id) => id !== groupId) : [...previous, groupId],
-    )
-  }
-
   return (
     <form
       ref={formRef}
@@ -147,22 +138,17 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
       className="space-y-3 pb-36 sm:pb-28"
     >
       {groupedServices.map((group) => {
-        const isOpen = openGroupIds.includes(group.id)
         const isSticky = stickyHeaderByGroupId[group.id]
 
         return (
           <section key={group.id} className="space-y-2">
-            <button
+            <div
               ref={(element) => {
                 headerRefs.current[group.id] = element
               }}
-              type="button"
-              onClick={() => toggleGroup(group.id)}
-              className={`sticky top-0 z-20 flex w-full items-center justify-between border bg-white px-4 py-3 text-left transition-colors hover:bg-slate-50 ${
+              className={`sticky top-0 z-20 flex w-full items-center justify-between border bg-white px-4 py-3 ${
                 isSticky ? 'border-black' : 'border-slate-200'
               }`}
-              aria-expanded={isOpen}
-              aria-controls={`group-panel-${group.id}`}
             >
               <h2
                 className={`text-xs font-semibold uppercase tracking-wide ${
@@ -171,78 +157,62 @@ export function ServiceSelectionForm({ groupedServices }: ServiceSelectionFormPr
               >
                 {group.name}
               </h2>
-              <span className={`text-xs ${isSticky ? 'text-black' : 'text-slate-500'}`}>
-                {isOpen ? '−' : '+'}
-              </span>
-            </button>
+            </div>
 
-            <AnimatePresence initial={false}>
-              {isOpen ? (
-                <motion.div
-                  id={`group-panel-${group.id}`}
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="space-y-2 overflow-hidden"
-                >
-                  {group.description ? (
-                    <p className="text-sm text-slate-600">{group.description}</p>
-                  ) : null}
-
-                  {group.services.map((service) => {
-                    const serviceId = String(service.id)
-                    const inputId = `service-${group.id}-${serviceId}`
-                    const selectedGroupId = selectedServiceGroupById[serviceId]
-                    const isSelectedAnywhere = selectedServiceIds.includes(serviceId)
-                    const isChecked = selectedGroupId === group.id
-                    const isHiddenInThisGroup = isSelectedAnywhere && selectedGroupId !== group.id
-
-                    if (isHiddenInThisGroup) {
-                      return null
-                    }
-
-                    const fullDescription = getServiceDescriptionText(service)
-                    const visibleDescription = isChecked
-                      ? fullDescription
-                      : truncateText(fullDescription, MAX_SERVICE_DESCRIPTION_LENGTH)
-
-                    return (
-                      <Label
-                        key={serviceId}
-                        htmlFor={inputId}
-                        className={`block w-full cursor-pointer border border-slate-200 p-4 transition-colors  ${
-                          isChecked
-                            ? 'bg-[#c89e58]/20 border-[#c89e58]'
-                            : 'bg-white hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <input
-                            id={inputId}
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => toggleService(serviceId, group.id)}
-                            className="h-4 w-4 border border-slate-300 accent-[#c89e58]"
-                          />
-                          <div className="min-w-0 flex-1 space-y-1">
-                            <div className="flex items-start justify-between gap-3">
-                              <p className="text-sm font-medium text-slate-900">{service.name}</p>
-                              <span className="shrink-0 text-sm text-slate-600">
-                                {service.duration} min • {service.price} kr
-                              </span>
-                            </div>
-                            {visibleDescription ? (
-                              <p className="text-xs text-slate-500">{visibleDescription}</p>
-                            ) : null}
-                          </div>
-                        </div>
-                      </Label>
-                    )
-                  })}
-                </motion.div>
+            <div className="space-y-2">
+              {group.description ? (
+                <p className="text-sm text-slate-600">{group.description}</p>
               ) : null}
-            </AnimatePresence>
+
+              {group.services.map((service) => {
+                const serviceId = String(service.id)
+                const inputId = `service-${group.id}-${serviceId}`
+                const selectedGroupId = selectedServiceGroupById[serviceId]
+                const isSelectedAnywhere = selectedServiceIds.includes(serviceId)
+                const isChecked = selectedGroupId === group.id
+                const isHiddenInThisGroup = isSelectedAnywhere && selectedGroupId !== group.id
+
+                if (isHiddenInThisGroup) {
+                  return null
+                }
+
+                const fullDescription = getServiceDescriptionText(service)
+                const visibleDescription = isChecked
+                  ? fullDescription
+                  : truncateText(fullDescription, MAX_SERVICE_DESCRIPTION_LENGTH)
+
+                return (
+                  <Label
+                    key={serviceId}
+                    htmlFor={inputId}
+                    className={`block w-full cursor-pointer border border-slate-200 p-4 transition-colors  ${
+                      isChecked ? 'bg-[#c89e58]/20 border-[#c89e58]' : 'bg-white hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <input
+                        id={inputId}
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleService(serviceId, group.id)}
+                        className="h-4 w-4 border border-slate-300 accent-[#c89e58]"
+                      />
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="text-sm font-medium text-slate-900">{service.name}</p>
+                          <span className="shrink-0 text-sm text-slate-600">
+                            {service.duration} min • {service.price} kr
+                          </span>
+                        </div>
+                        {visibleDescription ? (
+                          <p className="text-xs text-slate-500">{visibleDescription}</p>
+                        ) : null}
+                      </div>
+                    </div>
+                  </Label>
+                )
+              })}
+            </div>
           </section>
         )
       })}
