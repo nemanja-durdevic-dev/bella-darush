@@ -2,34 +2,67 @@ import type { BookingSummaryProps } from '../types'
 import { formatServiceNames } from '../utils'
 import { formatAppointmentDateNorwegian } from '@/lib/appointmentDate'
 import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export function BookingSummary({ services, worker, date, time }: BookingSummaryProps) {
   const totalPrice = services.reduce((sum, item) => sum + item.price, 0)
   const serviceNames = formatServiceNames(services.map((item) => item.name))
+  const appointmentDateTime = `${formatAppointmentDateNorwegian(date)} kl. ${time}`
 
   return (
-    <Card className="mb-6 border-slate-200 bg-white text-slate-900 shadow-none">
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between border-b border-slate-200 py-3">
-          <span className="text-sm text-slate-600">Tjeneste</span>
-          <span className="text-right text-sm font-medium">{serviceNames}</span>
-        </div>
-        <div className="flex items-center justify-between border-b border-slate-200 py-3">
-          <span className="text-sm text-slate-600">Behandler</span>
-          <span className="text-right text-sm font-medium">{worker.name}</span>
-        </div>
-        <div className="flex items-center justify-between border-b border-slate-200 py-3">
-          <span className="text-sm text-slate-600">Tidspunkt</span>
-          <span className="text-right text-sm font-medium">
-            <span className="capitalize">{formatAppointmentDateNorwegian(date)}</span>{' '}
-            <span>kl. {time}</span>
-          </span>
-        </div>
-        <div className="flex items-center justify-between py-3">
-          <span className="text-sm text-slate-600">Pris</span>
-          <span className="text-right text-sm font-semibold text-[#c89e58]">{totalPrice} kr</span>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div className="space-y-2">
+        <Label htmlFor="booking-summary-service" className="text-slate-700">
+          Tjeneste
+        </Label>
+        <Input
+          id="booking-summary-service"
+          value={serviceNames}
+          disabled
+          readOnly
+          className="border-slate-300 bg-slate-50 text-slate-900 disabled:opacity-100"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="booking-summary-worker" className="text-slate-700">
+          Behandler
+        </Label>
+        <Input
+          id="booking-summary-worker"
+          value={worker.name}
+          disabled
+          readOnly
+          className="border-slate-300 bg-slate-50 text-slate-900 disabled:opacity-100"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="booking-summary-time" className="text-slate-700">
+          Tidspunkt
+        </Label>
+        <Input
+          id="booking-summary-time"
+          value={appointmentDateTime}
+          disabled
+          readOnly
+          className="capitalize border-slate-300 bg-slate-50 text-slate-900 disabled:opacity-100"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="booking-summary-price" className="text-slate-700">
+          Pris
+        </Label>
+        <Input
+          id="booking-summary-price"
+          value={`${totalPrice} kr`}
+          disabled
+          readOnly
+          className="border-slate-300 bg-slate-50 font-semibold text-[#c89e58] disabled:opacity-100"
+        />
+      </div>
+    </div>
   )
 }
