@@ -1,4 +1,8 @@
 import type { CollectionConfig } from 'payload'
+import {
+  revalidateAppointmentServicePageAfterChange,
+  revalidateAppointmentServicePageAfterDelete,
+} from '../hooks/revalidateAppointmentServicePage'
 
 export const ServiceGroups: CollectionConfig = {
   slug: 'service-groups',
@@ -13,6 +17,10 @@ export const ServiceGroups: CollectionConfig = {
     create: ({ req }) => req.user?.collection === 'users',
     update: ({ req }) => req.user?.collection === 'users',
     delete: ({ req }) => req.user?.collection === 'users',
+  },
+  hooks: {
+    afterChange: [revalidateAppointmentServicePageAfterChange],
+    afterDelete: [revalidateAppointmentServicePageAfterDelete],
   },
   fields: [
     {

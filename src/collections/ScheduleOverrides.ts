@@ -1,4 +1,8 @@
 import type { CollectionConfig } from 'payload'
+import {
+  revalidateAppointmentServicePageAfterChange,
+  revalidateAppointmentServicePageAfterDelete,
+} from '../hooks/revalidateAppointmentServicePage'
 
 const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/
 
@@ -72,6 +76,10 @@ export const ScheduleOverrides: CollectionConfig = {
     create: ({ req }) => req.user?.collection === 'users',
     update: ({ req }) => req.user?.collection === 'users',
     delete: ({ req }) => req.user?.collection === 'users',
+  },
+  hooks: {
+    afterChange: [revalidateAppointmentServicePageAfterChange],
+    afterDelete: [revalidateAppointmentServicePageAfterDelete],
   },
   fields: [
     {

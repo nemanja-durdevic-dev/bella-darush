@@ -4,6 +4,10 @@ import { preventDoubleBooking } from '../hooks/preventDoubleBooking'
 import { validateServiceWorker } from '../hooks/validateServiceWorker'
 import { sendAppointmentEmails } from '../hooks/sendAppointmentEmails'
 import { generateCancellationToken } from '../hooks/generateCancellationToken'
+import {
+  revalidateAppointmentServicePageAfterChange,
+  revalidateAppointmentServicePageAfterDelete,
+} from '../hooks/revalidateAppointmentServicePage'
 
 const APPOINTMENT_STATUSES = [
   { label: 'Confirmed', value: 'confirmed' },
@@ -33,7 +37,8 @@ export const Appointments: CollectionConfig = {
   },
   hooks: {
     beforeChange: [generateCancellationToken, validateServiceWorker, preventDoubleBooking],
-    afterChange: [sendAppointmentEmails],
+    afterChange: [sendAppointmentEmails, revalidateAppointmentServicePageAfterChange],
+    afterDelete: [revalidateAppointmentServicePageAfterDelete],
   },
   fields: [
     // Customer relationship

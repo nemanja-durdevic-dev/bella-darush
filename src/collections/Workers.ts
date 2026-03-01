@@ -1,4 +1,8 @@
 import type { CollectionConfig } from 'payload'
+import {
+  revalidateAppointmentServicePageAfterChange,
+  revalidateAppointmentServicePageAfterDelete,
+} from '../hooks/revalidateAppointmentServicePage'
 
 const DAYS_OF_WEEK = [
   { label: 'Monday', value: 'monday' },
@@ -23,6 +27,10 @@ export const Workers: CollectionConfig = {
   //   update: ({ req }) => req.user?.collection === 'users',
   //   delete: ({ req }) => req.user?.collection === 'users',
   // },
+  hooks: {
+    afterChange: [revalidateAppointmentServicePageAfterChange],
+    afterDelete: [revalidateAppointmentServicePageAfterDelete],
+  },
   fields: [
     {
       name: 'name',

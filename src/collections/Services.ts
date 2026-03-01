@@ -1,4 +1,9 @@
 import type { CollectionConfig } from 'payload'
+import {
+  revalidateAppointmentServicePageAfterChange,
+  revalidateAppointmentServicePageAfterDelete,
+} from '../hooks/revalidateAppointmentServicePage'
+import { revalidateHomePageAfterChange, revalidateHomePageAfterDelete } from '../hooks/revalidateHomePage'
 
 export const Services: CollectionConfig = {
   slug: 'services',
@@ -13,6 +18,10 @@ export const Services: CollectionConfig = {
     create: ({ req }) => req.user?.collection === 'users',
     update: ({ req }) => req.user?.collection === 'users',
     delete: ({ req }) => req.user?.collection === 'users',
+  },
+  hooks: {
+    afterChange: [revalidateAppointmentServicePageAfterChange, revalidateHomePageAfterChange],
+    afterDelete: [revalidateAppointmentServicePageAfterDelete, revalidateHomePageAfterDelete],
   },
   fields: [
     {
