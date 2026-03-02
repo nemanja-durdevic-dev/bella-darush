@@ -3,7 +3,7 @@
  * Automatically sends email notifications when appointments are created or updated
  */
 
-import type { CollectionAfterChangeHook } from 'payload'
+import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 import type { Appointment, Customer, Service, Worker } from '../payload-types'
 import {
   sendAppointmentConfirmation,
@@ -11,6 +11,58 @@ import {
   sendCancellationEmail,
   validateEmailData,
 } from '../email/services'
+
+async function getEmailDataFromAppointment(
+  appointment: Appointment,
+  req: Parameters<CollectionAfterChangeHook<Appointment>>[0]['req'],
+) {
+  const { payload } = req
+
+  const customerId =
+    typeof appointment.customer === 'object' && appointment.customer !== null
+      ? appointment.customer.id
+      : appointment.customer
+  const workerId =
+    typeof appointment.worker === 'object' && appointment.worker !== null
+      ? appointment.worker.id
+      : appointment.worker
+  const serviceIds = Array.isArray(appointment.service)
+    ? appointment.service.map((service) =>
+        typeof service === 'object' && service !== null ? service.id : service,
+      )
+    : []
+
+  if (!customerId || !workerId || serviceIds.some((id) => !id)) {
+    return null
+  }
+
+  const customer = (await payload.findByID({
+    collection: 'customers',
+    id: customerId,
+    depth: 0,
+    req, // Pass req for transaction safety
+  })) as Customer
+
+  const worker = (await payload.findByID({
+    collection: 'workers',
+    id: workerId,
+    depth: 0,
+    req, // Pass req for transaction safety
+  })) as Worker
+
+  const services = (await Promise.all(
+    serviceIds.map((id) =>
+      payload.findByID({
+        collection: 'services',
+        id,
+        depth: 0,
+        req, // Pass req for transaction safety
+      }),
+    ),
+  )) as Service[]
+
+  return { customer, services, worker }
+}
 
 /**
  * AfterChange hook to send emails when appointments are created or cancelled
@@ -24,6 +76,10 @@ export const sendAppointmentEmails: CollectionAfterChangeHook<Appointment> = asy
 }) => {
   // Skip if emails already sent (to prevent loops)
   if (context?.skipEmails) {
+    return doc
+  }
+  // Skip all email notifications when disabled on the appointment
+  if (!doc.sendEmails) {
     return doc
   }
 
@@ -131,6 +187,50 @@ export const sendAppointmentEmails: CollectionAfterChangeHook<Appointment> = asy
   } catch (error) {
     // Log error but don't throw - appointment should succeed even if emails fail
     console.error(`❌ Error processing emails for appointment ${doc.id}:`, error)
+  }
+
+  return doc
+}
+
+export const sendAppointmentDeletionEmail: CollectionAfterDeleteHook<Appointment> = async ({
+  doc,
+  req,
+  context,
+}) => {
+  // Skip if emails already sent (to prevent loops)
+  if (context?.skipEmails) {
+    return doc
+  }
+  // Skip all email notifications when disabled on the appointment
+  if (!doc.sendEmails) {
+    return doc
+  }
+
+  try {
+    const emailData = await getEmailDataFromAppointment(doc, req)
+
+    if (!emailData) {
+      console.error(`⚠️  Cannot send deletion email for appointment ${doc.id}: Missing relationship IDs`)
+      return doc
+    }
+
+    const { payload } = req
+    const { customer, services, worker } = emailData
+
+    // Validate that relationships are populated
+    if (!validateEmailData(customer, services, worker)) {
+      console.error(`⚠️  Cannot send deletion email for appointment ${doc.id}: Missing relationship data`)
+      return doc
+    }
+
+    console.log(`📧 Sending cancellation email for deleted appointment ${doc.id}...`)
+
+    await sendCancellationEmail(payload, doc, customer, services, worker)
+
+    console.log(`✅ Cancellation email processed for deleted appointment ${doc.id}`)
+  } catch (error) {
+    // Log error but don't throw - deletion should succeed even if email fails
+    console.error(`❌ Error processing deletion email for appointment ${doc.id}:`, error)
   }
 
   return doc

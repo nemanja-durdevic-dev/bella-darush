@@ -398,6 +398,10 @@ export interface Appointment {
    */
   notes?: string | null;
   /**
+   * When enabled, email notifications are sent after create, update, and delete actions.
+   */
+  sendEmails?: boolean | null;
+  /**
    * Secure token for customer cancellation (automatically generated)
    */
   cancellationToken?: string | null;
@@ -681,6 +685,7 @@ export interface AppointmentsSelect<T extends boolean = true> {
   appointmentTime?: T;
   status?: T;
   notes?: T;
+  sendEmails?: T;
   cancellationToken?: T;
   emailsSent?:
     | T

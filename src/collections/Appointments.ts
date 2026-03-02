@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload'
 import { adminOnly } from '../access'
 import { preventDoubleBooking } from '../hooks/preventDoubleBooking'
 import { validateServiceWorker } from '../hooks/validateServiceWorker'
-import { sendAppointmentEmails } from '../hooks/sendAppointmentEmails'
+import { sendAppointmentDeletionEmail, sendAppointmentEmails } from '../hooks/sendAppointmentEmails'
 import { generateCancellationToken } from '../hooks/generateCancellationToken'
 import {
   revalidateAppointmentServicePageAfterChange,
@@ -38,7 +38,7 @@ export const Appointments: CollectionConfig = {
   hooks: {
     beforeChange: [generateCancellationToken, validateServiceWorker, preventDoubleBooking],
     afterChange: [sendAppointmentEmails, revalidateAppointmentServicePageAfterChange],
-    afterDelete: [revalidateAppointmentServicePageAfterDelete],
+    afterDelete: [sendAppointmentDeletionEmail, revalidateAppointmentServicePageAfterDelete],
   },
   fields: [
     // Customer relationship
@@ -125,6 +125,16 @@ export const Appointments: CollectionConfig = {
       type: 'textarea',
       admin: {
         description: 'Additional notes or special requests',
+      },
+    },
+    {
+      name: 'sendEmails',
+      type: 'checkbox',
+      defaultValue: true,
+      admin: {
+        description:
+          'When enabled, email notifications are sent after create, update, and delete actions.',
+        position: 'sidebar',
       },
     },
     // Cancellation token for customer self-service

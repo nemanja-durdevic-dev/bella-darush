@@ -5,6 +5,7 @@ import * as migration_20260226_182825_add_sort_order_to_service_groups_and_servi
 import * as migration_20260226_183343_service_groups_many_to_many_with_service_order from './20260226_183343_service_groups_many_to_many_with_service_order'
 import * as migration_20260226_183956_remove_service_group_row_sort_order from './20260226_183956_remove_service_group_row_sort_order'
 import * as migration_20260227_120000_add_workers_description from './20260227_120000_add_workers_description'
+import * as migration_20260302_100000_add_send_emails_to_appointments from './20260302_100000_add_send_emails_to_appointments'
 
 export const migrations = [
   {
@@ -41,5 +42,10 @@ export const migrations = [
     up: migration_20260227_120000_add_workers_description.up,
     down: migration_20260227_120000_add_workers_description.down,
     name: '20260227_120000_add_workers_description',
+  },
+  {
+    up: migration_20260302_100000_add_send_emails_to_appointments.up,
+    down: migration_20260302_100000_add_send_emails_to_appointments.down,
+    name: '20260302_100000_add_send_emails_to_appointments',
   },
 ]
