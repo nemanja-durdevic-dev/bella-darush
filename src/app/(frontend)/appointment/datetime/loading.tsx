@@ -5,7 +5,7 @@ export default function Loading() {
   return (
     <div className="space-y-2">
       <div className="space-y-4">
-        <BackButton href="/appointment/service" />
+        <BackButton disabled href="/appointment/service" />
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Velg tid</h1>
         <div className="mb-4 flex items-center justify-between gap-3  border border-slate-200 bg-white px-4 py-5">
           <span className="text-sm text-slate-600">Velg person:</span>
