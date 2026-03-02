@@ -2,14 +2,34 @@
 
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button, type ButtonProps } from '@/components/ui/button'
 
-interface BackButtonProps {
+interface BackButtonProps extends Omit<ButtonProps, 'asChild'> {
   href: string
-  props?: React.ComponentPropsWithoutRef<'button'> & React.ComponentPropsWithoutRef<typeof Button>
+  disabled?: boolean
 }
 
-export function BackButton({ href, ...props }: BackButtonProps) {
+export function BackButton({ href, disabled, ...props }: BackButtonProps) {
+  const content = (
+    <>
+      <ChevronLeft className="h-4 w-4" />
+      Tilbake
+    </>
+  )
+
+  if (disabled) {
+    return (
+      <Button
+        variant="ghost"
+        className="mb-3 h-auto px-0 text-slate-600 hover:bg-transparent hover:text-slate-900"
+        disabled
+        {...props}
+      >
+        {content}
+      </Button>
+    )
+  }
+
   return (
     <Button
       variant="ghost"
@@ -17,10 +37,7 @@ export function BackButton({ href, ...props }: BackButtonProps) {
       asChild
       {...props}
     >
-      <Link href={href}>
-        <ChevronLeft className="h-4 w-4" />
-        Tilbake
-      </Link>
+      <Link href={href}>{content}</Link>
     </Button>
   )
 }
