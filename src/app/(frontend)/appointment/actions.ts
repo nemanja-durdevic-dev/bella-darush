@@ -792,7 +792,7 @@ function formatLocalDate(date: Date): string {
 }
 
 function getTodayLocalDate(): string {
-  return formatLocalDate(new Date())
+  return getNowInAppointmentTimezone().date
 }
 
 function getServiceIdsFromValue(serviceValue: unknown): string[] {

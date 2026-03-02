@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 import { BackButton } from '../components/BackButton'
 import { TimeSlotGrid } from './TimeSlotGrid'
 import { Card, CardContent } from '@/components/ui/card'
+import { getNowInAppointmentTimezone } from '@/lib/appointmentDate'
 
 export default async function DateTimeSelectionPage({
   searchParams,
@@ -49,10 +50,10 @@ export default async function DateTimeSelectionPage({
   const selectedWorkerId =
     workerId && workers.some((worker) => worker.id === workerId) ? workerId : undefined
 
-  // Get current time for filtering past slots
-  const now = new Date()
-  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-  const today = now.toISOString().split('T')[0]
+  // Use booking timezone to prevent server-timezone drift in production
+  const nowInTimezone = getNowInAppointmentTimezone()
+  const currentTime = nowInTimezone.time
+  const today = nowInTimezone.date
 
   const workerWeekSlots = await Promise.all(
     workers.map(async (worker) => ({
