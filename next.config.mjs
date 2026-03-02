@@ -10,6 +10,14 @@ import { withPayload } from '@payloadcms/next/withPayload'
 // ]
 
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
+    ],
+  },
   // experimental: {
   //   serverActions: {
   //     allowedOrigins: serverActionAllowedOrigins,
