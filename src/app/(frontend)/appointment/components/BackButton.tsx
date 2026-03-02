@@ -6,14 +6,16 @@ import { Button } from '@/components/ui/button'
 
 interface BackButtonProps {
   href: string
+  props?: React.ComponentPropsWithoutRef<'button'> & React.ComponentPropsWithoutRef<typeof Button>
 }
 
-export function BackButton({ href }: BackButtonProps) {
+export function BackButton({ href, ...props }: BackButtonProps) {
   return (
     <Button
       variant="ghost"
       className="mb-3 h-auto px-0 text-slate-600 hover:bg-transparent hover:text-slate-900"
       asChild
+      {...props}
     >
       <Link href={href}>
         <ChevronLeft className="h-4 w-4" />
