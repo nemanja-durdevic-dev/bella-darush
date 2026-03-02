@@ -4,7 +4,7 @@ import { ServiceSelectionForm } from './ServiceSelectionForm'
 import type { Service, ServiceGroup } from '@/payload-types'
 import { getNowInAppointmentTimezone } from '@/lib/appointmentDate'
 
-export const revalidate = 900
+export const revalidate = 60
 
 type GroupedServices = {
   id: string
