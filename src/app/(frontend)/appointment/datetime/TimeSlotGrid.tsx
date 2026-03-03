@@ -193,13 +193,6 @@ export function TimeSlotGrid({
 
   useEffect(() => {
     if (!shouldFocusSlots || !selectedDateData || isLoadingSlots) return
-    if (typeof window === 'undefined') return
-
-    const isMobile = window.matchMedia('(max-width: 767px)').matches
-    if (!isMobile) {
-      setShouldFocusSlots(false)
-      return
-    }
 
     timeslotSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     setShouldFocusSlots(false)
