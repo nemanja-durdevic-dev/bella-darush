@@ -142,7 +142,7 @@ export function TimeSlotGrid({
                   key={worker.id}
                   type="button"
                   variant={selectedWorkerId === worker.id ? 'default' : 'outline'}
-                  className={`h-auto min-h-16 w-full max-w-full items-start justify-start gap-4 whitespace-normal border px-4 py-4 border-slate-300 bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900`}
+                  className={`h-auto min-h-16 w-full max-w-full justify-start gap-4 whitespace-normal border px-4 py-4 border-slate-300 bg-white text-slate-900 hover:bg-slate-50 hover:text-slate-900 ${worker.description ? 'items-start' : 'items-center'}`}
                   onClick={() => handleWorkerSelect(worker.id)}
                 >
                   {worker.imageUrl ? (
