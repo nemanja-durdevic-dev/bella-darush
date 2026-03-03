@@ -93,3 +93,44 @@ export function getNowInAppointmentTimezone(): { date: string; time: string } {
     time: `${hour}:${minute}`,
   }
 }
+
+function parseTimeParts(timeValue: string): { hours: number; minutes: number } | null {
+  const match = timeValue.match(/^([01]?\d|2[0-3]):([0-5]\d)$/)
+  if (!match) return null
+
+  const hours = Number(match[1])
+  const minutes = Number(match[2])
+
+  return { hours, minutes }
+}
+
+function toComparableTimestamp(dateInput: string | Date, timeValue: string): number | null {
+  const dateKey = toAppointmentDateKey(dateInput)
+  const timeParts = parseTimeParts(timeValue)
+
+  if (!timeParts) {
+    return null
+  }
+
+  const [year, month, day] = dateKey.split('-').map(Number)
+
+  return Date.UTC(year, month - 1, day, timeParts.hours, timeParts.minutes, 0, 0)
+}
+
+export function getMinutesUntilAppointmentStart(
+  dateInput: string | Date,
+  timeValue: string,
+): number | null {
+  const appointmentTimestamp = toComparableTimestamp(dateInput, timeValue)
+  if (appointmentTimestamp === null) {
+    return null
+  }
+
+  const nowInTimezone = getNowInAppointmentTimezone()
+  const nowTimestamp = toComparableTimestamp(nowInTimezone.date, nowInTimezone.time)
+  if (nowTimestamp === null) {
+    return null
+  }
+
+  return Math.floor((appointmentTimestamp - nowTimestamp) / 60000)
+}

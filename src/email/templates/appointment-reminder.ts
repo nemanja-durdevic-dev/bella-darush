@@ -27,6 +27,8 @@ export function generateReminderHTML(data: ReminderEmailData): string {
   const { appointment, customer, services, worker } = data
   const serviceNames = formatServiceNames(services.map((service) => service.name))
   const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+  const cancellationUrl = `${baseUrl}/appointment/cancel/${appointment.cancellationToken}`
 
   const content = `
     <div style="${emailStyles.header}">
@@ -81,7 +83,7 @@ export function generateReminderHTML(data: ReminderEmailData): string {
         💡 Husk!
       </p>
       <p style="margin: 0; color: #475569; font-size: 14px;">
-        Vennligst møt opp 5 minutter før avtalt tid. Hvis du trenger å avbestille eller endre tiden, vennligst gi beskjed så snart som mulig.
+        Vennligst møt opp 5 minutter før avtalt tid. Hvis du trenger å avbestille, må det gjøres minst 3 timer før avtalen starter.
       </p>
     </div>
 
@@ -96,10 +98,19 @@ export function generateReminderHTML(data: ReminderEmailData): string {
         : ''
     }
 
-    <div style="${emailStyles.footer}">
-      <p style="margin: 0 0 10px 0;">
-        Trenger du å endre eller avbestille? Ta kontakt med oss.
+    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; margin: 30px 0; text-align: center;">
+      <h2 style="margin: 0 0 15px 0; color: #0f172a; font-size: 18px; font-weight: 600;">
+        Trenger du å avbestille?
+      </h2>
+      <p style="margin: 0 0 20px 0; color: #475569; font-size: 14px;">
+        Du kan avbestille avtalen din med lenken nedenfor. Avbestilling må skje minst 3 timer før avtalen starter.
       </p>
+      <a href="${cancellationUrl}" style="${emailStyles.button}">
+        Avbestill avtale
+      </a>
+    </div>
+
+    <div style="${emailStyles.footer}">
       <p style="margin: 20px 0 0 0; color: #9ca3af; font-size: 12px;">
         Dette er en automatisk generert e-post
       </p>
@@ -119,6 +130,8 @@ export function generateReminderText(data: ReminderEmailData): string {
   const { appointment, customer, services, worker } = data
   const serviceNames = formatServiceNames(services.map((service) => service.name))
   const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+  const cancellationUrl = `${baseUrl}/appointment/cancel/${appointment.cancellationToken}`
 
   return `
 PÅMINNELSE: DIN AVTALE I MORGEN
@@ -145,11 +158,17 @@ Navn:       ${worker.name}
 HUSK!
 -----
 Vennligst møt opp 5 minutter før avtalt tid. Hvis du trenger å avbestille
-eller endre tiden, vennligst gi beskjed så snart som mulig.
+må det gjøres minst 3 timer før avtalen starter.
 
 ${appointment.notes ? `\nDINE NOTATER\n------------\n${appointment.notes}\n` : ''}
 
-Trenger du å endre eller avbestille? Ta kontakt med oss.
+AVBESTILLINGSLENKE
+------------------
+Du kan avbestille avtalen din her:
+
+${cancellationUrl}
+
+Avbestilling må skje minst 3 timer før avtalen starter.
 
 ---
 Dette er en automatisk generert e-post

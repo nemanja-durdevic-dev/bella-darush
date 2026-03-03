@@ -9,8 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   formatAppointmentDateNorwegian,
-  getNowInAppointmentTimezone,
-  toAppointmentDateKey,
+  getMinutesUntilAppointmentStart,
 } from '@/lib/appointmentDate'
 
 function formatPrice(price: number): string {
@@ -65,13 +64,13 @@ export default async function CancelAppointmentPage({
     )
   }
 
-  // Check if appointment has passed
-  const appointmentDateKey = toAppointmentDateKey(appointment.appointmentDate)
-  const nowInTimezone = getNowInAppointmentTimezone()
+  const minutesUntilAppointment = getMinutesUntilAppointmentStart(
+    appointment.appointmentDate,
+    appointment.appointmentTime,
+  )
 
-  const appointmentHasPassed =
-    appointmentDateKey < nowInTimezone.date ||
-    (appointmentDateKey === nowInTimezone.date && appointment.appointmentTime < nowInTimezone.time)
+  // Check if appointment has passed
+  const appointmentHasPassed = minutesUntilAppointment !== null && minutesUntilAppointment < 0
 
   if (appointmentHasPassed) {
     return (
@@ -81,6 +80,31 @@ export default async function CancelAppointmentPage({
         </h1>
         <p className="text-slate-600">
           Denne avtalen kan ikke avbestilles da den allerede har funnet sted.
+        </p>
+
+        <Button
+          variant="ghost"
+          className="text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          asChild
+        >
+          <Link href="/appointment">Book ny avtale</Link>
+        </Button>
+      </div>
+    )
+  }
+
+  // Enforce cancellation policy: at least 3 hours before appointment start
+  const cancellationWindowPassed =
+    minutesUntilAppointment !== null && minutesUntilAppointment >= 0 && minutesUntilAppointment < 180
+
+  if (cancellationWindowPassed) {
+    return (
+      <div className="mx-auto max-w-[600px] space-y-4 text-center">
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+          Avbestillingsfristen er utløpt
+        </h1>
+        <p className="text-slate-600">
+          Denne avtalen kan ikke avbestilles mindre enn 3 timer før starttidspunktet.
         </p>
 
         <Button
@@ -132,7 +156,7 @@ export default async function CancelAppointmentPage({
             <AlertTriangle className="mx-auto mb-2 h-5 w-5 text-[#fc4141]" />
             <div className="text-sm leading-relaxed text-[#fc4141]">
               <strong>Viktig:</strong> Hvis du avbestiller denne avtalen, vil du motta en
-              bekreftelse på e-post. Vennligst gi beskjed minst 24 timer i forveien hvis mulig.
+              bekreftelse på e-post. Avbestilling må skje minst 3 timer før avtalen starter.
             </div>
           </div>
         </CardContent>

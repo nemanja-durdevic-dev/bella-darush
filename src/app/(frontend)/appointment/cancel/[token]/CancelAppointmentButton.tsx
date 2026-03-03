@@ -28,7 +28,11 @@ export function CancelAppointmentButton({ token, customerName }: CancelAppointme
         router.push('/appointment/cancel/success')
       } else {
         // Handle specific errors
-        if (result.error === 'already_cancelled' || result.error === 'appointment_passed') {
+        if (
+          result.error === 'already_cancelled' ||
+          result.error === 'appointment_passed' ||
+          result.error === 'cancellation_window_passed'
+        ) {
           // Refresh to show updated view
           router.refresh()
         } else {

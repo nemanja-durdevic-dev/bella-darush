@@ -5,6 +5,7 @@ import config from '@/payload.config'
 import { customerInfoSchema, confirmStepSchema } from './validation'
 import type { AppointmentActionResult } from './types'
 import {
+  getMinutesUntilAppointmentStart,
   getNowInAppointmentTimezone,
   toAdminDayOnlyISOString,
   toAppointmentDateKey,
@@ -925,19 +926,34 @@ export async function cancelAppointmentByToken(token: string) {
       }
     }
 
-    // Check if appointment is in the past
-    const appointmentDateKey = toAppointmentDateKey(appointment.appointmentDate)
-    const nowInTimezone = getNowInAppointmentTimezone()
+    const minutesUntilAppointment = getMinutesUntilAppointmentStart(
+      appointment.appointmentDate,
+      appointment.appointmentTime,
+    )
 
-    const appointmentHasPassed =
-      appointmentDateKey < nowInTimezone.date ||
-      (appointmentDateKey === nowInTimezone.date &&
-        appointment.appointmentTime < nowInTimezone.time)
+    if (minutesUntilAppointment === null) {
+      return {
+        success: false,
+        error: 'Failed to validate cancellation window. Please contact us.',
+      }
+    }
+
+    // Check if appointment is in the past
+    const appointmentHasPassed = minutesUntilAppointment < 0
 
     if (appointmentHasPassed) {
       return {
         success: false,
         error: 'appointment_passed',
+        appointment,
+      }
+    }
+
+    // Enforce cancellation policy: at least 3 hours before appointment start
+    if (minutesUntilAppointment < 180) {
+      return {
+        success: false,
+        error: 'cancellation_window_passed',
         appointment,
       }
     }
