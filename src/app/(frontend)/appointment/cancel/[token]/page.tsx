@@ -146,13 +146,13 @@ export default async function CancelAppointmentPage({
           </div>
 
           {appointment.notes && (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div className="border border-slate-200 bg-slate-50 p-4">
               <div className="mb-1 text-xs font-medium text-slate-600">DINE NOTATER</div>
               <p className="m-0 text-sm text-slate-700">{appointment.notes}</p>
             </div>
           )}
 
-          <div className="rounded-lg border border-[#fc4141]/50 bg-[#fc4141]/10 p-4 text-center">
+          <div className="border border-[#fc4141]/50 bg-[#fc4141]/10 p-4 text-center">
             <AlertTriangle className="mx-auto mb-2 h-5 w-5 text-[#fc4141]" />
             <div className="text-sm leading-relaxed text-[#fc4141]">
               <strong>Viktig:</strong> Hvis du avbestiller denne avtalen, vil du motta en
