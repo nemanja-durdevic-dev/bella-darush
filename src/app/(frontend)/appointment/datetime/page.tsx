@@ -1,7 +1,6 @@
 import {
   getServicesByIds,
   getWorkersForServices,
-  getAvailableTimeSlotsForNext9Days,
 } from '../actions'
 import { datetimeStepSchema } from '../validation'
 import { redirect } from 'next/navigation'
@@ -52,52 +51,14 @@ export default async function DateTimeSelectionPage({
 
   // Use booking timezone to prevent server-timezone drift in production
   const nowInTimezone = getNowInAppointmentTimezone()
-  const currentTime = nowInTimezone.time
   const today = nowInTimezone.date
-
-  const workerWeekSlots = await Promise.all(
-    workers.map(async (worker) => ({
-      workerId: worker.id,
-      weekSlots: await getAvailableTimeSlotsForNext9Days(worker.id, serviceIds, today, currentTime),
-    })),
-  )
-
-  const slotWorkerMap: Record<string, string> = {}
-
-  const weekSlots = selectedWorkerId
-    ? (workerWeekSlots.find((entry) => entry.workerId === selectedWorkerId)?.weekSlots ?? [])
-    : (() => {
-        const slotsByDay = new Map<string, Set<string>>()
-
-        for (const entry of workerWeekSlots) {
-          for (const daySlot of entry.weekSlots) {
-            if (!slotsByDay.has(daySlot.day)) {
-              slotsByDay.set(daySlot.day, new Set())
-            }
-
-            const daySet = slotsByDay.get(daySlot.day)!
-            for (const time of daySlot.timeslots) {
-              daySet.add(time)
-              const key = `${daySlot.day}|${time}`
-              if (!slotWorkerMap[key]) {
-                slotWorkerMap[key] = entry.workerId
-              }
-            }
-          }
-        }
-
-        return Array.from(slotsByDay.entries()).map(([day, timeslots]) => ({
-          day,
-          timeslots: Array.from(timeslots).sort(),
-        }))
-      })()
 
   const totalPrice = services.reduce((sum, service) => sum + (service.price ?? 0), 0)
 
   return (
     <div className="space-y-4">
       <BackButton href={`/appointment/service`} />
-      <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Velg tid</h1>
+      <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Velg dato og tid</h1>
       <TimeSlotGrid
         serviceIds={serviceIds}
         selectedWorkerId={selectedWorkerId}
@@ -110,8 +71,7 @@ export default async function DateTimeSelectionPage({
               ? (worker.profileImage.url ?? undefined)
               : undefined,
         }))}
-        weekSlots={weekSlots}
-        slotWorkerMap={slotWorkerMap}
+        today={today}
         totalPrice={totalPrice}
       />
     </div>

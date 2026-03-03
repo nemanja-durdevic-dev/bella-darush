@@ -11,7 +11,7 @@ import {
   toAppointmentDateKey,
 } from '@/lib/appointmentDate'
 
-const TIMESLOT_INTERVAL_MINUTES = 15
+const TIMESLOT_INTERVAL_MINUTES = 30
 
 /**
  * Get all active services
@@ -349,7 +349,7 @@ export async function getAvailableTimeSlots(
     bookedRanges.push({ start: appointmentStart, end: appointmentStart + bookedDuration })
   }
 
-  // Generate time slots in 15-minute intervals
+  // Generate time slots in 30-minute intervals
   const slots: string[] = []
   const duration = selectedServiceDuration
 
@@ -386,6 +386,60 @@ export async function getAvailableTimeSlots(
   }
 
   return slots
+}
+
+/**
+ * Get available time slots for a selected date.
+ * If workerId is omitted, returns merged slots across all eligible workers
+ * and maps each slot to a worker for booking continuation.
+ */
+export async function getAvailableTimeSlotsForDate(
+  serviceIds: string[],
+  date: string,
+  workerId?: string,
+): Promise<{ timeslots: string[]; slotWorkerMap: Record<string, string> }> {
+  const nowInTimezone = getNowInAppointmentTimezone()
+
+  if (!date || serviceIds.length === 0) {
+    return { timeslots: [], slotWorkerMap: {} }
+  }
+
+  if (workerId) {
+    const timeslots = await getAvailableTimeSlots(workerId, serviceIds, date, nowInTimezone.time)
+    return {
+      timeslots,
+      slotWorkerMap: Object.fromEntries(timeslots.map((time) => [time, workerId])),
+    }
+  }
+
+  const workers = await getWorkersForServices(serviceIds)
+  if (workers.length === 0) {
+    return { timeslots: [], slotWorkerMap: {} }
+  }
+
+  const slotsByWorker = await Promise.all(
+    workers.map(async (worker) => ({
+      workerId: String(worker.id),
+      timeslots: await getAvailableTimeSlots(String(worker.id), serviceIds, date, nowInTimezone.time),
+    })),
+  )
+
+  const mergedSlots = new Set<string>()
+  const slotWorkerMap: Record<string, string> = {}
+
+  for (const workerSlots of slotsByWorker) {
+    for (const time of workerSlots.timeslots) {
+      mergedSlots.add(time)
+      if (!slotWorkerMap[time]) {
+        slotWorkerMap[time] = workerSlots.workerId
+      }
+    }
+  }
+
+  return {
+    timeslots: Array.from(mergedSlots).sort(),
+    slotWorkerMap,
+  }
 }
 
 /**
@@ -578,7 +632,7 @@ export async function getAvailableTimeSlotsForNext9Days(
       bookedRanges.push({ start: appointmentStart, end: appointmentStart + bookedDuration })
     }
 
-    // Generate time slots in 15-minute intervals
+    // Generate time slots in 30-minute intervals
     const slots: string[] = []
     const duration = selectedServiceDuration
     const isToday = dateStr === today
