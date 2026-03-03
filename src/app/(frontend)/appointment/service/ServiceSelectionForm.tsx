@@ -214,7 +214,7 @@ export function ServiceSelectionForm({
                     {nextAvailableLabel ? (
                       <p className="text-xs text-slate-500 text-right border-t border-dashed border-black pt-4 mt-4">
                         Neste time:{' '}
-                        <span className="p-2 bg-slate-100 text-slate-700">
+                        <span className="p-2 bg-slate-100 text-slate-700 capitalize">
                           {nextAvailableLabel}
                         </span>
                       </p>
