@@ -47,6 +47,9 @@ export function generateConfirmationHTML(data: ConfirmationEmailData): string {
       <p style="margin: 10px 0 0 0; color: #475569;">
         Takk for din bestilling. Vi gleder oss til å se deg!
       </p>
+      <p style="margin: 10px 0 0 0; color: #475569;">
+        Gratis parkering er tilgjengelig rett foran salongen.
+      </p>
     </div>
 
     <div style="${emailStyles.section}">
@@ -149,6 +152,7 @@ BESTILLING BEKREFTET
 Hei ${customer.name}!
 
 Takk for din bestilling. Vi gleder oss til å se deg!
+Gratis parkering er tilgjengelig rett foran salongen.
 
 
 AVTALEDETALJER
