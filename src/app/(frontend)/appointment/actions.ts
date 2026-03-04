@@ -7,8 +7,7 @@ import type { AppointmentActionResult } from './types'
 import {
   getMinutesUntilAppointmentStart,
   getNowInAppointmentTimezone,
-  toAdminDayOnlyISOString,
-  toAppointmentDateKey,
+  toAdminDayOnlyISOString
 } from '@/lib/appointmentDate'
 
 const TIMESLOT_INTERVAL_MINUTES = 30
