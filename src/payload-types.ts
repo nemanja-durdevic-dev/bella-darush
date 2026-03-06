@@ -129,6 +129,8 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Users who can access the Payload admin panel
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -154,6 +156,8 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Uploaded images and files used across the website
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -173,6 +177,8 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Groups for organizing and ordering services in booking
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "service-groups".
  */
@@ -201,6 +207,8 @@ export interface ServiceGroup {
   createdAt: string;
 }
 /**
+ * Bookable services offered by the business
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "services".
  */
@@ -238,6 +246,8 @@ export interface Service {
   createdAt: string;
 }
 /**
+ * Team members who can be booked for services
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "workers".
  */
@@ -283,6 +293,8 @@ export interface Worker {
   createdAt: string;
 }
 /**
+ * Default weekly opening and closing hours
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "business-hours".
  */
@@ -370,6 +382,8 @@ export interface Customer {
   createdAt: string;
 }
 /**
+ * Customer bookings, statuses, and email notification tracking
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "appointments".
  */

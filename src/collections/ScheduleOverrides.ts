@@ -64,9 +64,16 @@ const validateTimeRanges = (
 
 export const ScheduleOverrides: CollectionConfig = {
   slug: 'schedule-overrides',
+  labels: {
+    singular: 'Schedule Override',
+    plural: 'Schedule Overrides',
+  },
   admin: {
     useAsTitle: 'reason',
     group: '📅 Scheduling & Availability',
+    meta: {
+      title: 'Schedule Overrides',
+    },
     defaultColumns: ['date', 'reason', 'isClosed'],
     description:
       'Override regular business hours for specific dates (holidays, special events, etc.)',

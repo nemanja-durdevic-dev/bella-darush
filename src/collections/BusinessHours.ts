@@ -16,10 +16,18 @@ const DAYS_OF_WEEK = [
 
 export const BusinessHours: CollectionConfig = {
   slug: 'business-hours',
+  labels: {
+    singular: 'Business Hour',
+    plural: 'Business Hours',
+  },
   admin: {
     useAsTitle: 'dayOfWeek',
     group: '📅 Scheduling & Availability',
+    meta: {
+      title: 'Business Hours',
+    },
     defaultColumns: ['dayOfWeek', 'openTime', 'closeTime', 'isClosed'],
+    description: 'Default weekly opening and closing hours',
   },
   hooks: {
     afterChange: [revalidateAppointmentServicePageAfterChange],

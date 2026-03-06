@@ -7,11 +7,19 @@ import { revalidateHomePageAfterChange, revalidateHomePageAfterDelete } from '..
 
 export const Services: CollectionConfig = {
   slug: 'services',
+  labels: {
+    singular: 'Service',
+    plural: 'Services',
+  },
   defaultSort: 'name',
   admin: {
     useAsTitle: 'name',
     group: '🧩 Core Entities',
+    meta: {
+      title: 'Services',
+    },
     defaultColumns: ['name', 'duration', 'price', 'isActive'],
+    description: 'Bookable services offered by the business',
   },
   hooks: {
     afterChange: [revalidateAppointmentServicePageAfterChange, revalidateHomePageAfterChange],

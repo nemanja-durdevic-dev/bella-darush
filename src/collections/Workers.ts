@@ -16,10 +16,18 @@ const DAYS_OF_WEEK = [
 
 export const Workers: CollectionConfig = {
   slug: 'workers',
+  labels: {
+    singular: 'Worker',
+    plural: 'Workers',
+  },
   admin: {
     useAsTitle: 'name',
     group: '🧩 Core Entities',
+    meta: {
+      title: 'Workers',
+    },
     defaultColumns: ['name', 'email', 'isActive'],
+    description: 'Team members who can be booked for services',
   },
   hooks: {
     afterChange: [revalidateAppointmentServicePageAfterChange],

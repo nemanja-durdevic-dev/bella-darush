@@ -2,9 +2,16 @@ import type { CollectionConfig } from 'payload'
 
 export const Customers: CollectionConfig = {
   slug: 'customers',
+  labels: {
+    singular: 'Customer',
+    plural: 'Customers',
+  },
   admin: {
     useAsTitle: 'name',
     group: '🧩 Core Entities',
+    meta: {
+      title: 'Customers',
+    },
     defaultColumns: ['name', 'email', 'phone', 'createdAt'],
     description: 'Customer records for booking management',
   },

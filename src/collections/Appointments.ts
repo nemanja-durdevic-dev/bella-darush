@@ -16,9 +16,16 @@ const APPOINTMENT_STATUSES = [
 
 export const Appointments: CollectionConfig = {
   slug: 'appointments',
+  labels: {
+    singular: 'Appointment',
+    plural: 'Appointments',
+  },
   admin: {
     useAsTitle: 'id',
     group: '📅 Scheduling & Availability',
+    meta: {
+      title: 'Appointments',
+    },
     defaultColumns: [
       'customer',
       'service',
@@ -27,6 +34,7 @@ export const Appointments: CollectionConfig = {
       'appointmentTime',
       'status',
     ],
+    description: 'Customer bookings, statuses, and email notification tracking',
   },
   hooks: {
     beforeChange: [generateCancellationToken, validateServiceWorker, preventDoubleBooking],

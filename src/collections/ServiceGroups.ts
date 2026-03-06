@@ -6,11 +6,19 @@ import {
 
 export const ServiceGroups: CollectionConfig = {
   slug: 'service-groups',
+  labels: {
+    singular: 'Service Group',
+    plural: 'Service Groups',
+  },
   defaultSort: 'sortOrder',
   admin: {
     useAsTitle: 'name',
     group: '🧩 Core Entities',
+    meta: {
+      title: 'Service Groups',
+    },
     defaultColumns: ['name', 'sortOrder', 'isActive', 'updatedAt'],
+    description: 'Groups for organizing and ordering services in booking',
   },
   hooks: {
     afterChange: [revalidateAppointmentServicePageAfterChange],
