@@ -439,6 +439,11 @@ export interface Appointment {
     reminderSent?: boolean | null;
     reminderSentAt?: string | null;
     /**
+     * 30-day rebooking reminder email sent
+     */
+    rebookingReminderSent?: boolean | null;
+    rebookingReminderSentAt?: string | null;
+    /**
      * Cancellation email sent
      */
     cancellationSent?: boolean | null;
@@ -710,6 +715,8 @@ export interface AppointmentsSelect<T extends boolean = true> {
         businessNotificationSentAt?: T;
         reminderSent?: T;
         reminderSentAt?: T;
+        rebookingReminderSent?: T;
+        rebookingReminderSentAt?: T;
         cancellationSent?: T;
         cancellationSentAt?: T;
       };

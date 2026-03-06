@@ -25,6 +25,11 @@ import {
   generateReminderSubject,
   generateReminderText,
 } from '../templates/appointment-reminder'
+import {
+  generateRebookingReminderHTML,
+  generateRebookingReminderSubject,
+  generateRebookingReminderText,
+} from '../templates/appointment-rebooking-reminder'
 
 /**
  * Email sending result
@@ -154,6 +159,35 @@ export async function sendAppointmentReminder(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error(`❌ Failed to send reminder email to ${customer.email}:`, errorMessage)
+    return { success: false, error: errorMessage }
+  }
+}
+
+/**
+ * Send rebooking reminder email to customer (30 days after appointment)
+ */
+export async function sendRebookingReminder(
+  payload: Payload,
+  appointment: Appointment,
+  customer: Customer,
+  services: Service[],
+  worker: Worker,
+): Promise<EmailResult> {
+  try {
+    const emailData = { appointment, customer, services, worker }
+
+    await payload.sendEmail({
+      to: customer.email,
+      subject: generateRebookingReminderSubject(emailData),
+      html: generateRebookingReminderHTML(emailData),
+      text: generateRebookingReminderText(emailData),
+    })
+
+    console.log(`✅ Rebooking reminder email sent to ${customer.email} for appointment ${appointment.id}`)
+    return { success: true }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error(`❌ Failed to send rebooking reminder email to ${customer.email}:`, errorMessage)
     return { success: false, error: errorMessage }
   }
 }

@@ -216,6 +216,25 @@ export const Appointments: CollectionConfig = {
           },
         },
         {
+          name: 'rebookingReminderSent',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: {
+            readOnly: true,
+            description: '30-day rebooking reminder email sent',
+          },
+        },
+        {
+          name: 'rebookingReminderSentAt',
+          type: 'date',
+          admin: {
+            readOnly: true,
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+          },
+        },
+        {
           name: 'cancellationSent',
           type: 'checkbox',
           defaultValue: false,
