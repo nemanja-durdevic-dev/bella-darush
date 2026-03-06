@@ -71,12 +71,6 @@ export const ScheduleOverrides: CollectionConfig = {
     description:
       'Override regular business hours for specific dates (holidays, special events, etc.)',
   },
-  access: {
-    read: ({ req }) => req.user?.collection === 'users',
-    create: ({ req }) => req.user?.collection === 'users',
-    update: ({ req }) => req.user?.collection === 'users',
-    delete: ({ req }) => req.user?.collection === 'users',
-  },
   hooks: {
     afterChange: [revalidateAppointmentServicePageAfterChange],
     afterDelete: [revalidateAppointmentServicePageAfterDelete],

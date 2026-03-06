@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import { adminOnly } from '../access'
 
 export const Customers: CollectionConfig = {
   slug: 'customers',
@@ -8,12 +7,6 @@ export const Customers: CollectionConfig = {
     group: '🧩 Core Entities',
     defaultColumns: ['name', 'email', 'phone', 'createdAt'],
     description: 'Customer records for booking management',
-  },
-  access: {
-    read: adminOnly,
-    create: adminOnly,
-    update: adminOnly,
-    delete: adminOnly,
   },
   fields: [
     {

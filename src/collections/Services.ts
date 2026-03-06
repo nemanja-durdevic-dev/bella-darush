@@ -13,12 +13,6 @@ export const Services: CollectionConfig = {
     group: '🧩 Core Entities',
     defaultColumns: ['name', 'duration', 'price', 'isActive'],
   },
-  access: {
-    read: ({ req }) => req.user?.collection === 'users',
-    create: ({ req }) => req.user?.collection === 'users',
-    update: ({ req }) => req.user?.collection === 'users',
-    delete: ({ req }) => req.user?.collection === 'users',
-  },
   hooks: {
     afterChange: [revalidateAppointmentServicePageAfterChange, revalidateHomePageAfterChange],
     afterDelete: [revalidateAppointmentServicePageAfterDelete, revalidateHomePageAfterDelete],

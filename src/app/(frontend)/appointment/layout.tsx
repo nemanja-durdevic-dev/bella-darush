@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Scissors } from 'lucide-react'
 
 export const metadata = {
-  title: 'Bestill time | Service App',
+  title: 'Bestill time - Bella',
   description: 'Bestill time online enkelt og raskt',
 }
 

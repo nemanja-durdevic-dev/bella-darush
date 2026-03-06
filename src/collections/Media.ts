@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { adminOnly, anyone } from '../access'
+import { anyone } from '../access'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -7,10 +7,7 @@ export const Media: CollectionConfig = {
     group: '🖼️ Content',
   },
   access: {
-    read: anyone,
-    create: adminOnly,
-    update: adminOnly,
-    delete: adminOnly,
+    read: anyone
   },
   fields: [
     {

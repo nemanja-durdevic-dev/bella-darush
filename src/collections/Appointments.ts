@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import { adminOnly } from '../access'
 import { preventDoubleBooking } from '../hooks/preventDoubleBooking'
 import { validateServiceWorker } from '../hooks/validateServiceWorker'
 import { sendAppointmentDeletionEmail, sendAppointmentEmails } from '../hooks/sendAppointmentEmails'
@@ -28,12 +27,6 @@ export const Appointments: CollectionConfig = {
       'appointmentTime',
       'status',
     ],
-  },
-  access: {
-    read: adminOnly,
-    create: adminOnly,
-    update: adminOnly,
-    delete: adminOnly,
   },
   hooks: {
     beforeChange: [generateCancellationToken, validateServiceWorker, preventDoubleBooking],
