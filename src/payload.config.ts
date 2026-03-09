@@ -25,6 +25,10 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     meta: {
+      icons: {
+        icon: '/icon.ico',
+        shortcut: '/icon.ico',
+      },
       titleSuffix: '',
     },
     components: {
@@ -69,8 +73,6 @@ export default buildConfig({
     vercelBlobStorage({
       token: process.env.BLOB_READ_WRITE_TOKEN,
       collections: { media: true },
-      // addRandomSuffix: true,
-      // clientUploads: true,
     }),
   ],
 })
