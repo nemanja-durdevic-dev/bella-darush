@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   title: 'Bella Frisør',
   description:
     'Moderne barbersalong med eksperter i hårklipp og skjeggpleie, hvor du kan booke time online for en stilfull opplevelse.',
+  icons: {
+    icon: '/icon.ico',
+    shortcut: '/icon.ico',
+  },
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {

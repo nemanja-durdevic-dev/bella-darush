@@ -27,6 +27,12 @@ export default buildConfig({
     meta: {
       titleSuffix: '',
     },
+    components: {
+      graphics: {
+        Logo: '/components/payload/BellaBrand#BellaLogo',
+        Icon: '/components/payload/BellaBrand#BellaIcon',
+      },
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
