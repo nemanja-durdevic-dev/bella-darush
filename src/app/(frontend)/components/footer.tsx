@@ -33,6 +33,14 @@ function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
+function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M13.5 22v-8h2.7l.4-3h-3.1V9.1c0-.9.3-1.6 1.7-1.6H17V4.8c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.4V11H7.5v3h2.8v8h3.2z" />
+    </svg>
+  )
+}
+
 const Footer = () => {
   return (
     <footer id="contact" className="bg-[#101010] relative pt-16">
@@ -125,15 +133,15 @@ const Footer = () => {
                 >
                   <InstagramIcon className="h-6 w-6" />
                 </Link>
-                {/* <Link
-                  href="https://www.facebook.com"
+                <Link
+                  href="https://www.facebook.com/profile.php?id=100076087878115"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
                   className="hover:text-white transition"
                 >
                   <FacebookIcon className="h-6 w-6" />
-                </Link> */}
+                </Link>
                 <Link
                   href="https://www.tiktok.com/@bella.frisorsalong"
                   target="_blank"
