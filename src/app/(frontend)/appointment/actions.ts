@@ -355,7 +355,7 @@ export async function getAvailableTimeSlots(
   // Filter out past slots if we have current time and the date is today
   const isToday = date === getTodayLocalDate()
   const currentTimeMinutes = currentTime ? timeToMinutes(currentTime) : undefined
-  const minStartTime = isToday && currentTimeMinutes ? currentTimeMinutes + 30 : 0 // 30-minute buffer
+  const minStartTime = isToday && currentTimeMinutes !== undefined ? currentTimeMinutes : 0
 
   for (const range of effectiveRanges) {
     let slotTime = timeToMinutes(range.start)
@@ -635,7 +635,7 @@ export async function getAvailableTimeSlotsForNext9Days(
     const slots: string[] = []
     const duration = selectedServiceDuration
     const isToday = dateStr === today
-    const minStartTime = isToday && currentTimeMinutes ? currentTimeMinutes + 30 : 0
+    const minStartTime = isToday && currentTimeMinutes !== undefined ? currentTimeMinutes : 0
 
     for (const range of effectiveRanges) {
       let slotTime = timeToMinutes(range.start)
