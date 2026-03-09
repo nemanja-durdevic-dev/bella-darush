@@ -2,6 +2,7 @@ import React from 'react'
 import './styles.css'
 import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface'
 import { Poppins } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 
 const poppins = Poppins({
   variable: '--font-poppins',
@@ -24,7 +25,10 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   return (
     <html lang="en">
-      <body className={`${poppins.variable} antialiased`}>{children}</body>
+      <body className={`${poppins.variable} antialiased`}>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }
