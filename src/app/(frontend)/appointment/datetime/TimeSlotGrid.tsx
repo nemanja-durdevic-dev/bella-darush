@@ -28,6 +28,7 @@ const MONTH_FORMATTER = new Intl.DateTimeFormat('nb-NO', {
   month: 'long',
   year: 'numeric',
 })
+const FOCUS_AFTER_PROVIDER_SELECTION_KEY = 'appointment.focus.timeslots'
 
 type DaySlotsData = {
   timeslots: string[]
@@ -95,7 +96,7 @@ export function TimeSlotGrid({
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const [selectedDate, setSelectedDate] = useState(today)
-  const [displayedMonth, setDisplayedMonth] = useState<Date>(() => fromDateKey(today))
+  const [displayedMonth, setDisplayedMonth] = useState<Date>(() => getMonthStart(fromDateKey(today)))
   const [slotsByDate, setSlotsByDate] = useState<Record<string, DaySlotsData>>({})
   const [isLoadingSlots, setIsLoadingSlots] = useState(false)
   const [slotsError, setSlotsError] = useState<string | null>(null)
@@ -115,7 +116,7 @@ export function TimeSlotGrid({
     () => new Date(todayDate.getFullYear(), todayDate.getMonth(), 1),
     [todayDate],
   )
-  const canGoPrevMonth = displayedMonth > minMonth
+  const canGoPrevMonth = displayedMonth.getTime() > minMonth.getTime()
 
   const servicesKey = useMemo(() => serviceIds.join('|'), [serviceIds])
 
@@ -148,6 +149,17 @@ export function TimeSlotGrid({
     setSlotsByDate({})
     setSlotsError(null)
   }, [servicesKey, selectedWorkerId])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    if (window.sessionStorage.getItem(FOCUS_AFTER_PROVIDER_SELECTION_KEY) === 'true') {
+      setShouldFocusSlots(true)
+      window.sessionStorage.removeItem(FOCUS_AFTER_PROVIDER_SELECTION_KEY)
+    }
+  }, [selectedWorkerId, servicesKey])
 
   useEffect(() => {
     let isMounted = true
@@ -213,6 +225,9 @@ export function TimeSlotGrid({
 
   const handleWorkerSelect = (workerId?: string) => {
     const query = getDatetimeQuery(workerId)
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem(FOCUS_AFTER_PROVIDER_SELECTION_KEY, 'true')
+    }
     router.push(`/appointment/datetime?${query.toString()}`)
     setIsDialogOpen(false)
   }
