@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import type { Service } from '@/payload-types'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 
 type RichTextNode = {
@@ -189,12 +190,11 @@ export function ServiceSelectionForm({
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <input
+                      <Checkbox
                         id={inputId}
-                        type="checkbox"
                         checked={isChecked}
-                        onChange={() => toggleService(serviceId, group.id)}
-                        className="h-4 w-4 border border-slate-300 accent-[#c89e58]"
+                        onCheckedChange={() => toggleService(serviceId, group.id)}
+                        className="h-4 w-4 rounded-none border-slate-300 data-[state=checked]:border-[#c89e58] data-[state=checked]:bg-[#c89e58] data-[state=checked]:text-black"
                       />
                       <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex items-start justify-between gap-3">
