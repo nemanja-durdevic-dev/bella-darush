@@ -189,27 +189,31 @@ export function ServiceSelectionForm({
                       isChecked ? 'bg-[#c89e58]/20 border-[#c89e58]' : 'bg-white hover:bg-slate-50'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 gap-y-1">
                       <Checkbox
                         id={inputId}
                         checked={isChecked}
                         onCheckedChange={() => toggleService(serviceId, group.id)}
-                        className="h-4 w-4 rounded-none border-slate-300 data-[state=checked]:border-[#c89e58] data-[state=checked]:bg-[#c89e58] data-[state=checked]:text-black"
+                        className="mt-0.5 h-4 w-4 rounded-none border-slate-300 data-[state=checked]:border-[#c89e58] data-[state=checked]:bg-[#c89e58] data-[state=checked]:text-black"
                       />
-                      <div className="min-w-0 flex-1 space-y-1">
+                      <div className="min-w-0">
                         <div className="flex items-start justify-between gap-3">
-                          <p className="text-sm font-medium text-slate-900">{service.name}</p>
+                          <p className="min-w-0 text-sm font-medium text-slate-900">
+                            {service.name}
+                          </p>
                           <span className="shrink-0 text-sm text-slate-600">
                             {service.duration} min • {service.price} kr
                           </span>
                         </div>
+                        {fullDescription ? (
+                          <p
+                            className={`mt-1 text-xs text-slate-500 ${isChecked ? '' : 'truncate'}`}
+                          >
+                            {fullDescription}
+                          </p>
+                        ) : null}
                       </div>
                     </div>
-                    {fullDescription ? (
-                      <p className={`text-xs text-slate-500 ${isChecked ? '' : 'truncate'}`}>
-                        {fullDescription}
-                      </p>
-                    ) : null}
 
                     {nextAvailableLabel ? (
                       <p className="text-xs text-slate-500 text-right border-t border-dashed border-black pt-4 mt-4">
