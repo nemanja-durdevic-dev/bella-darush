@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { adminsOnly, hideFromWorkers } from '../access'
 import {
   revalidateAppointmentServicePageAfterChange,
   revalidateAppointmentServicePageAfterDelete,
@@ -71,12 +72,19 @@ export const ScheduleOverrides: CollectionConfig = {
   admin: {
     useAsTitle: 'reason',
     group: '📅 Scheduling & Availability',
+    hidden: hideFromWorkers,
     meta: {
       title: 'Schedule Overrides',
     },
     defaultColumns: ['date', 'reason', 'isClosed'],
     description:
       'Override regular business hours for specific dates (holidays, special events, etc.)',
+  },
+  access: {
+    read: adminsOnly,
+    create: adminsOnly,
+    update: adminsOnly,
+    delete: adminsOnly,
   },
   hooks: {
     afterChange: [revalidateAppointmentServicePageAfterChange],

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { adminsAndWorkers, adminsOnly, hideFromWorkers } from '../access'
 
 export const Customers: CollectionConfig = {
   slug: 'customers',
@@ -9,11 +10,18 @@ export const Customers: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     group: '🧩 Core Entities',
+    hidden: hideFromWorkers,
     meta: {
       title: 'Customers',
     },
     defaultColumns: ['name', 'email', 'phone', 'createdAt'],
     description: 'Customer records for booking management',
+  },
+  access: {
+    read: adminsAndWorkers,
+    create: adminsOnly,
+    update: adminsOnly,
+    delete: adminsOnly,
   },
   fields: [
     {

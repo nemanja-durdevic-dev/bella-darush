@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { adminsOnly, hideFromWorkers } from '../access'
 import {
   revalidateAppointmentServicePageAfterChange,
   revalidateAppointmentServicePageAfterDelete,
@@ -23,11 +24,18 @@ export const BusinessHours: CollectionConfig = {
   admin: {
     useAsTitle: 'dayOfWeek',
     group: '📅 Scheduling & Availability',
+    hidden: hideFromWorkers,
     meta: {
       title: 'Business Hours',
     },
     defaultColumns: ['dayOfWeek', 'openTime', 'closeTime', 'isClosed'],
     description: 'Default weekly opening and closing hours',
+  },
+  access: {
+    read: adminsOnly,
+    create: adminsOnly,
+    update: adminsOnly,
+    delete: adminsOnly,
   },
   hooks: {
     afterChange: [revalidateAppointmentServicePageAfterChange],

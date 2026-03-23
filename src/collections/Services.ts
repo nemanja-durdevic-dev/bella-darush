@@ -1,9 +1,13 @@
 import type { CollectionConfig } from 'payload'
+import { adminsAndWorkers, adminsOnly, hideFromWorkers } from '../access'
 import {
   revalidateAppointmentServicePageAfterChange,
   revalidateAppointmentServicePageAfterDelete,
 } from '../hooks/revalidateAppointmentServicePage'
-import { revalidateHomePageAfterChange, revalidateHomePageAfterDelete } from '../hooks/revalidateHomePage'
+import {
+  revalidateHomePageAfterChange,
+  revalidateHomePageAfterDelete,
+} from '../hooks/revalidateHomePage'
 
 export const Services: CollectionConfig = {
   slug: 'services',
@@ -15,11 +19,18 @@ export const Services: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     group: '🧩 Core Entities',
+    hidden: hideFromWorkers,
     meta: {
       title: 'Services',
     },
     defaultColumns: ['name', 'duration', 'price', 'isActive'],
     description: 'Bookable services offered by the business',
+  },
+  access: {
+    read: adminsAndWorkers,
+    create: adminsOnly,
+    update: adminsOnly,
+    delete: adminsOnly,
   },
   hooks: {
     afterChange: [revalidateAppointmentServicePageAfterChange, revalidateHomePageAfterChange],

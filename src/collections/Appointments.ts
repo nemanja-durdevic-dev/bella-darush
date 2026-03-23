@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { adminsAndWorkers, adminsOnly } from '../access'
 import { preventDoubleBooking } from '../hooks/preventDoubleBooking'
 import { validateServiceWorker } from '../hooks/validateServiceWorker'
 import { sendAppointmentDeletionEmail, sendAppointmentEmails } from '../hooks/sendAppointmentEmails'
@@ -40,6 +41,12 @@ export const Appointments: CollectionConfig = {
     beforeChange: [generateCancellationToken, validateServiceWorker, preventDoubleBooking],
     afterChange: [sendAppointmentEmails, revalidateAppointmentServicePageAfterChange],
     afterDelete: [sendAppointmentDeletionEmail, revalidateAppointmentServicePageAfterDelete],
+  },
+  access: {
+    read: adminsAndWorkers,
+    create: adminsOnly,
+    update: adminsOnly,
+    delete: adminsOnly,
   },
   fields: [
     // Customer relationship

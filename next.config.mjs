@@ -18,11 +18,11 @@ const nextConfig = {
       },
     ],
   },
-  // experimental: {
-  //   serverActions: {
-  //     allowedOrigins: serverActionAllowedOrigins,
-  //   },
-  // },
+  experimental: {
+    serverActions: {
+      allowedOrigins: serverActionAllowedOrigins,
+    },
+  },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],

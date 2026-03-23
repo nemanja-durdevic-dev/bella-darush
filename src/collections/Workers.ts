@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { adminsAndWorkers, adminsOnly, hideFromWorkers } from '../access'
 import {
   revalidateAppointmentServicePageAfterChange,
   revalidateAppointmentServicePageAfterDelete,
@@ -23,11 +24,18 @@ export const Workers: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     group: '🧩 Core Entities',
+    hidden: hideFromWorkers,
     meta: {
       title: 'Workers',
     },
     defaultColumns: ['name', 'email', 'isActive'],
     description: 'Team members who can be booked for services',
+  },
+  access: {
+    read: adminsAndWorkers,
+    create: adminsOnly,
+    update: adminsOnly,
+    delete: adminsOnly,
   },
   hooks: {
     afterChange: [revalidateAppointmentServicePageAfterChange],
