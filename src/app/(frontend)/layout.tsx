@@ -3,6 +3,7 @@ import './styles.css'
 import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface'
 import { Poppins } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const poppins = Poppins({
   variable: '--font-poppins',
@@ -28,6 +29,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       <body className={`${poppins.variable} antialiased`}>
         {children}
         <Analytics />
+        <SpeedInsights/>
       </body>
     </html>
   )
