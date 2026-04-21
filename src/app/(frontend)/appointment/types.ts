@@ -31,6 +31,12 @@ export interface TimeSlotGridProps {
   totalPrice: number
 }
 
+export interface DaySlotsData {
+  timeslots: string[]
+  slotWorkerMap: Record<string, string>
+  availableWorkerIds: string[]
+}
+
 /**
  * Time slot filtering function type
  */

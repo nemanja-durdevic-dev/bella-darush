@@ -76,9 +76,9 @@ export const ScheduleOverrides: CollectionConfig = {
     meta: {
       title: 'Schedule Overrides',
     },
-    defaultColumns: ['date', 'reason', 'isClosed'],
+    defaultColumns: ['date', 'worker', 'reason', 'isClosed'],
     description:
-      'Override regular business hours for specific dates (holidays, special events, etc.)',
+      'Override regular business hours for specific dates, either globally or for a specific worker',
   },
   access: {
     read: adminsOnly,
@@ -91,6 +91,18 @@ export const ScheduleOverrides: CollectionConfig = {
     afterDelete: [revalidateAppointmentServicePageAfterDelete],
   },
   fields: [
+    {
+      name: 'worker',
+      type: 'relationship',
+      relationTo: 'workers',
+      filterOptions: {
+        isActive: { equals: true },
+      },
+      admin: {
+        description:
+          'Optional: leave empty to apply this override to the whole business, or select a worker for a worker-specific override.',
+      },
+    },
     {
       name: 'date',
       type: 'date',

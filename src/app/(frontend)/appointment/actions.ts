@@ -7,10 +7,29 @@ import type { AppointmentActionResult } from './types'
 import {
   getMinutesUntilAppointmentStart,
   getNowInAppointmentTimezone,
-  toAdminDayOnlyISOString
+  toAdminDayOnlyISOString,
 } from '@/lib/appointmentDate'
 
 const TIMESLOT_INTERVAL_MINUTES = 30
+
+type TimeRange = {
+  start: string
+  end: string
+}
+
+type ScheduleOverrideLike = {
+  date: string
+  isClosed?: boolean | null
+  openTime?: string | null
+  closeTime?: string | null
+  timeRanges?:
+    | {
+        startTime?: string | null
+        endTime?: string | null
+      }[]
+    | null
+  worker?: string | { id: string } | null
+}
 
 /**
  * Get all active services
@@ -236,31 +255,24 @@ export async function getAvailableTimeSlots(
 
   // Check for schedule override
   const { startOfDay, endOfDay } = getLocalDayRange(date)
-  const override = await payload.find({
+  const overrideResult = await payload.find({
     collection: 'schedule-overrides',
     where: {
       and: [{ date: { greater_than_equal: startOfDay } }, { date: { less_than_equal: endOfDay } }],
     },
     sort: '-createdAt',
-    limit: 1,
+    limit: 100,
   })
 
-  let isClosed = false
-  let baseRanges: Array<{ start: string; end: string }> = []
+  const workerSpecificOverride = getWorkerSpecificOverride(overrideResult.docs, workerId)
+  const resolvedOverride = resolveScheduleOverride(overrideResult.docs, workerId)
 
-  if (override.docs.length > 0) {
-    const overrideDoc = override.docs[0]
-    isClosed = overrideDoc.isClosed ?? false
-    if (!isClosed && Array.isArray(overrideDoc.timeRanges) && overrideDoc.timeRanges.length > 0) {
-      baseRanges = overrideDoc.timeRanges
-        .filter((range) => range?.startTime && range?.endTime)
-        .map((range) => ({
-          start: range.startTime as string,
-          end: range.endTime as string,
-        }))
-    } else if (!isClosed && overrideDoc.openTime && overrideDoc.closeTime) {
-      baseRanges = [{ start: overrideDoc.openTime, end: overrideDoc.closeTime }]
-    }
+  let isClosed = false
+  let baseRanges: TimeRange[] = []
+
+  if (resolvedOverride) {
+    isClosed = resolvedOverride.isClosed ?? false
+    baseRanges = getOverrideTimeRanges(resolvedOverride)
   } else {
     // Get business hours for this day
     const businessHours = await payload.find({
@@ -284,22 +296,28 @@ export async function getAvailableTimeSlots(
     return []
   }
 
-  // Find worker's hours for this day
-  const workerHours = worker.workingHours?.find(
-    (wh: { dayOfWeek?: string }) => wh.dayOfWeek === dayOfWeek,
-  )
+  let effectiveRanges: TimeRange[] = []
 
-  if (!workerHours) {
-    return []
+  if (workerSpecificOverride) {
+    effectiveRanges = baseRanges
+  } else {
+    // Without a date-specific worker override, availability still follows recurring weekly hours.
+    const workerHours = worker.workingHours?.find(
+      (wh: { dayOfWeek?: string }) => wh.dayOfWeek === dayOfWeek,
+    )
+
+    if (!workerHours) {
+      return []
+    }
+
+    // Calculate effective hours (intersection of base ranges and worker hours)
+    effectiveRanges = baseRanges
+      .map((range) => ({
+        start: maxTime(range.start, workerHours.startTime),
+        end: minTime(range.end, workerHours.endTime),
+      }))
+      .filter((range) => timeToMinutes(range.start) < timeToMinutes(range.end))
   }
-
-  // Calculate effective hours (intersection of base ranges and worker hours)
-  const effectiveRanges = baseRanges
-    .map((range) => ({
-      start: maxTime(range.start, workerHours.startTime),
-      end: minTime(range.end, workerHours.endTime),
-    }))
-    .filter((range) => timeToMinutes(range.start) < timeToMinutes(range.end))
 
   if (effectiveRanges.length === 0) {
     return []
@@ -396,32 +414,50 @@ export async function getAvailableTimeSlotsForDate(
   serviceIds: string[],
   date: string,
   workerId?: string,
-): Promise<{ timeslots: string[]; slotWorkerMap: Record<string, string> }> {
+): Promise<{
+  timeslots: string[]
+  slotWorkerMap: Record<string, string>
+  availableWorkerIds: string[]
+}> {
   const nowInTimezone = getNowInAppointmentTimezone()
 
   if (!date || serviceIds.length === 0) {
-    return { timeslots: [], slotWorkerMap: {} }
-  }
-
-  if (workerId) {
-    const timeslots = await getAvailableTimeSlots(workerId, serviceIds, date, nowInTimezone.time)
-    return {
-      timeslots,
-      slotWorkerMap: Object.fromEntries(timeslots.map((time) => [time, workerId])),
-    }
+    return { timeslots: [], slotWorkerMap: {}, availableWorkerIds: [] }
   }
 
   const workers = await getWorkersForServices(serviceIds)
   if (workers.length === 0) {
-    return { timeslots: [], slotWorkerMap: {} }
+    return { timeslots: [], slotWorkerMap: {}, availableWorkerIds: [] }
   }
 
   const slotsByWorker = await Promise.all(
     workers.map(async (worker) => ({
       workerId: String(worker.id),
-      timeslots: await getAvailableTimeSlots(String(worker.id), serviceIds, date, nowInTimezone.time),
+      timeslots: await getAvailableTimeSlots(
+        String(worker.id),
+        serviceIds,
+        date,
+        nowInTimezone.time,
+      ),
     })),
   )
+
+  const availableWorkerIds = slotsByWorker
+    .filter((workerSlots) => workerSlots.timeslots.length > 0)
+    .map((workerSlots) => workerSlots.workerId)
+
+  if (workerId) {
+    const selectedWorkerSlots = slotsByWorker.find(
+      (workerSlots) => workerSlots.workerId === workerId,
+    )
+    const timeslots = selectedWorkerSlots?.timeslots ?? []
+
+    return {
+      timeslots,
+      slotWorkerMap: Object.fromEntries(timeslots.map((time) => [time, workerId])),
+      availableWorkerIds,
+    }
+  }
 
   const mergedSlots = new Set<string>()
   const slotWorkerMap: Record<string, string> = {}
@@ -438,6 +474,7 @@ export async function getAvailableTimeSlotsForDate(
   return {
     timeslots: Array.from(mergedSlots).sort(),
     slotWorkerMap,
+    availableWorkerIds,
   }
 }
 
@@ -517,10 +554,12 @@ export async function getAvailableTimeSlotsForNext9Days(
   // Create lookup maps
   const businessHoursMap = new Map(businessHours.docs.map((bh) => [bh.dayOfWeek, bh]))
 
-  const overridesMap = new Map<string, (typeof overrides.docs)[0]>()
+  const overridesMap = new Map<string, typeof overrides.docs>()
   for (const override of overrides.docs) {
     const overrideDate = new Date(override.date).toISOString().split('T')[0]
-    overridesMap.set(overrideDate, override)
+    const dateOverrides = overridesMap.get(overrideDate) ?? []
+    dateOverrides.push(override)
+    overridesMap.set(overrideDate, dateOverrides)
   }
 
   // Group appointments by date
@@ -564,21 +603,14 @@ export async function getAvailableTimeSlotsForNext9Days(
 
     // Get base ranges from override or business hours
     let isClosed = false
-    let baseRanges: Array<{ start: string; end: string }> = []
+    let baseRanges: TimeRange[] = []
 
-    const override = overridesMap.get(dateStr)
+    const dateOverrides = overridesMap.get(dateStr) ?? []
+    const workerSpecificOverride = getWorkerSpecificOverride(dateOverrides, workerId)
+    const override = resolveScheduleOverride(dateOverrides, workerId)
     if (override) {
       isClosed = override.isClosed ?? false
-      if (!isClosed && Array.isArray(override.timeRanges) && override.timeRanges.length > 0) {
-        baseRanges = override.timeRanges
-          .filter((range) => range?.startTime && range?.endTime)
-          .map((range) => ({
-            start: range.startTime as string,
-            end: range.endTime as string,
-          }))
-      } else if (!isClosed && override.openTime && override.closeTime) {
-        baseRanges = [{ start: override.openTime, end: override.closeTime }]
-      }
+      baseRanges = getOverrideTimeRanges(override)
     } else {
       const hours = businessHoursMap.get(dayOfWeek)
       if (hours) {
@@ -594,23 +626,28 @@ export async function getAvailableTimeSlotsForNext9Days(
       continue
     }
 
-    // Find worker's hours for this day
-    const workerHours = worker.workingHours?.find(
-      (wh: { dayOfWeek?: string }) => wh.dayOfWeek === dayOfWeek,
-    )
+    let effectiveRanges: TimeRange[] = []
 
-    if (!workerHours) {
-      result.push({ day: dateStr, timeslots: [] })
-      continue
+    if (workerSpecificOverride) {
+      effectiveRanges = baseRanges
+    } else {
+      const workerHours = worker.workingHours?.find(
+        (wh: { dayOfWeek?: string }) => wh.dayOfWeek === dayOfWeek,
+      )
+
+      if (!workerHours) {
+        result.push({ day: dateStr, timeslots: [] })
+        continue
+      }
+
+      // Calculate effective hours
+      effectiveRanges = baseRanges
+        .map((range) => ({
+          start: maxTime(range.start, workerHours.startTime),
+          end: minTime(range.end, workerHours.endTime),
+        }))
+        .filter((range) => timeToMinutes(range.start) < timeToMinutes(range.end))
     }
-
-    // Calculate effective hours
-    const effectiveRanges = baseRanges
-      .map((range) => ({
-        start: maxTime(range.start, workerHours.startTime),
-        end: minTime(range.end, workerHours.endTime),
-      }))
-      .filter((range) => timeToMinutes(range.start) < timeToMinutes(range.end))
 
     if (effectiveRanges.length === 0) {
       result.push({ day: dateStr, timeslots: [] })
@@ -843,6 +880,59 @@ function formatLocalDate(date: Date): string {
   const m = `${date.getMonth() + 1}`.padStart(2, '0')
   const d = `${date.getDate()}`.padStart(2, '0')
   return `${y}-${m}-${d}`
+}
+
+function getWorkerIdFromOverride(override: ScheduleOverrideLike): string | null {
+  if (!override.worker) {
+    return null
+  }
+
+  if (typeof override.worker === 'string' || typeof override.worker === 'number') {
+    return String(override.worker)
+  }
+
+  return 'id' in override.worker ? String(override.worker.id) : null
+}
+
+function getOverrideTimeRanges(override: ScheduleOverrideLike): TimeRange[] {
+  if (Array.isArray(override.timeRanges) && override.timeRanges.length > 0) {
+    return override.timeRanges
+      .filter((range) => range?.startTime && range?.endTime)
+      .map((range) => ({
+        start: range.startTime as string,
+        end: range.endTime as string,
+      }))
+  }
+
+  if (override.openTime && override.closeTime) {
+    return [{ start: override.openTime, end: override.closeTime }]
+  }
+
+  return []
+}
+
+function resolveScheduleOverride(
+  overrides: ScheduleOverrideLike[],
+  workerId: string,
+): ScheduleOverrideLike | null {
+  const globalOverride = overrides.find((override) => !getWorkerIdFromOverride(override))
+
+  if (globalOverride?.isClosed) {
+    return globalOverride
+  }
+
+  const workerOverride = overrides.find(
+    (override) => getWorkerIdFromOverride(override) === workerId,
+  )
+
+  return workerOverride ?? globalOverride ?? null
+}
+
+function getWorkerSpecificOverride(
+  overrides: ScheduleOverrideLike[],
+  workerId: string,
+): ScheduleOverrideLike | null {
+  return overrides.find((override) => getWorkerIdFromOverride(override) === workerId) ?? null
 }
 
 function getTodayLocalDate(): string {

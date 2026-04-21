@@ -318,13 +318,17 @@ export interface BusinessHour {
   createdAt: string;
 }
 /**
- * Override regular business hours for specific dates (holidays, special events, etc.)
+ * Override regular business hours for specific dates, either globally or for a specific worker
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "schedule-overrides".
  */
 export interface ScheduleOverride {
   id: string;
+  /**
+   * Optional: leave empty to apply this override to the whole business, or select a worker for a worker-specific override.
+   */
+  worker?: (string | null) | Worker;
   /**
    * The specific date for this override
    */
@@ -667,6 +671,7 @@ export interface BusinessHoursSelect<T extends boolean = true> {
  * via the `definition` "schedule-overrides_select".
  */
 export interface ScheduleOverridesSelect<T extends boolean = true> {
+  worker?: T;
   date?: T;
   reason?: T;
   isClosed?: T;

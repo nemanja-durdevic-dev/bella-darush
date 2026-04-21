@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, Info } from 'lucide-react'
 import { getAvailableTimeSlotsForDate } from '../actions'
-import type { TimeSlotGridProps } from '../types'
+import type { DaySlotsData, TimeSlotGridProps } from '../types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -29,11 +29,6 @@ const MONTH_FORMATTER = new Intl.DateTimeFormat('nb-NO', {
   year: 'numeric',
 })
 const FOCUS_AFTER_PROVIDER_SELECTION_KEY = 'appointment.focus.timeslots'
-
-type DaySlotsData = {
-  timeslots: string[]
-  slotWorkerMap: Record<string, string>
-}
 
 function getInitials(name: string) {
   return name
@@ -95,8 +90,10 @@ export function TimeSlotGrid({
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const [selectedDate, setSelectedDate] = useState(today)
-  const [displayedMonth, setDisplayedMonth] = useState<Date>(() => getMonthStart(fromDateKey(today)))
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [displayedMonth, setDisplayedMonth] = useState<Date>(() =>
+    getMonthStart(fromDateKey(today)),
+  )
   const [slotsByDate, setSlotsByDate] = useState<Record<string, DaySlotsData>>({})
   const [isLoadingSlots, setIsLoadingSlots] = useState(false)
   const [slotsError, setSlotsError] = useState<string | null>(null)
@@ -104,12 +101,18 @@ export function TimeSlotGrid({
   const timeslotSectionRef = useRef<HTMLDivElement | null>(null)
 
   const selectedWorker = workers.find((worker) => worker.id === selectedWorkerId)
-  const selectedDateData = slotsByDate[selectedDate]
+  const selectedDateData = selectedDate ? slotsByDate[selectedDate] : undefined
   const selectedTimeslots = selectedDateData?.timeslots ?? []
-  const selectedDateLabel = DAY_FORMATTER.format(fromDateKey(selectedDate)).replace(
-    /^\p{L}/u,
-    (char) => char.toUpperCase(),
-  )
+  const availableWorkersForSelectedDate = selectedDateData
+    ? workers.filter((worker) => selectedDateData.availableWorkerIds.includes(worker.id))
+    : []
+  const noWorkersAvailableOnSelectedDate =
+    Boolean(selectedDateData) && availableWorkersForSelectedDate.length === 0
+  const selectedDateLabel = selectedDate
+    ? DAY_FORMATTER.format(fromDateKey(selectedDate)).replace(/^\p{L}/u, (char) =>
+        char.toUpperCase(),
+      )
+    : null
 
   const todayDate = useMemo(() => fromDateKey(today), [today])
   const minMonth = useMemo(
@@ -187,7 +190,7 @@ export function TimeSlotGrid({
         setSlotsError('Kunne ikke hente ledige tider. Prøv igjen.')
         setSlotsByDate((previous) => ({
           ...previous,
-          [selectedDate]: { timeslots: [], slotWorkerMap: {} },
+          [selectedDate]: { timeslots: [], slotWorkerMap: {}, availableWorkerIds: [] },
         }))
       } finally {
         if (isMounted) {
@@ -210,6 +213,19 @@ export function TimeSlotGrid({
     setShouldFocusSlots(false)
   }, [isLoadingSlots, selectedDateData, shouldFocusSlots])
 
+  useEffect(() => {
+    if (!selectedDate || !selectedWorkerId || !selectedDateData) {
+      return
+    }
+
+    if (selectedDateData.availableWorkerIds.includes(selectedWorkerId)) {
+      return
+    }
+
+    const query = getDatetimeQuery()
+    router.replace(`/appointment/datetime?${query.toString()}`)
+  }, [router, selectedDate, selectedDateData, selectedWorkerId, serviceIds])
+
   const getDatetimeQuery = (workerId?: string) => {
     const query = new URLSearchParams()
     for (const serviceId of serviceIds) {
@@ -224,6 +240,16 @@ export function TimeSlotGrid({
   }
 
   const handleWorkerSelect = (workerId?: string) => {
+    const nextWorkerId = workerId ?? undefined
+
+    if (selectedWorkerId === nextWorkerId) {
+      setIsDialogOpen(false)
+      if (selectedDate) {
+        setShouldFocusSlots(true)
+      }
+      return
+    }
+
     const query = getDatetimeQuery(workerId)
     if (typeof window !== 'undefined') {
       window.sessionStorage.setItem(FOCUS_AFTER_PROVIDER_SELECTION_KEY, 'true')
@@ -273,7 +299,10 @@ export function TimeSlotGrid({
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="top-6 translate-y-0 border-slate-200 bg-white text-slate-900 sm:top-10">
+          <DialogContent
+            className="top-6 translate-y-0 border-slate-200 bg-white text-slate-900 sm:top-10"
+            onCloseAutoFocus={(event) => event.preventDefault()}
+          >
             <DialogHeader>
               <DialogTitle className="text-slate-900">Velg person</DialogTitle>
               <DialogDescription className="text-slate-600">
@@ -281,48 +310,62 @@ export function TimeSlotGrid({
               </DialogDescription>
             </DialogHeader>
             <div className="grid min-w-0 gap-2">
-              <Button
-                type="button"
-                variant={!selectedWorkerId ? 'default' : 'outline'}
-                className="w-full bg-black text-white hover:bg-black/90 hover:text-white"
-                onClick={() => handleWorkerSelect()}
-              >
-                {ANY_WORKER_LABEL}
-              </Button>
-              <div className="flex items-center gap-3 py-1">
-                <span className="h-px flex-1 bg-slate-200" />
-                <span className="text-xs uppercase tracking-wide text-slate-500">eller</span>
-                <span className="h-px flex-1 bg-slate-200" />
-              </div>
-              {workers.map((worker) => (
-                <Button
-                  key={worker.id}
-                  type="button"
-                  variant={selectedWorkerId === worker.id ? 'default' : 'outline'}
-                  className={`h-auto min-h-16 w-full max-w-full justify-start gap-4 whitespace-normal border border-slate-300 bg-white px-4 py-4 text-slate-900 hover:bg-slate-50 hover:text-slate-900 ${worker.description ? 'items-start' : 'items-center'}`}
-                  onClick={() => handleWorkerSelect(worker.id)}
-                >
-                  {worker.imageUrl ? (
-                    <Image
-                      src={worker.imageUrl}
-                      alt={worker.name}
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm font-medium text-slate-600">
-                      {getInitials(worker.name)}
-                    </span>
-                  )}
-                  <span className="flex min-w-0 flex-1 flex-col items-start text-left">
-                    <span className="text-base font-medium">{worker.name}</span>
-                    {worker.description ? (
-                      <span className="text-xs leading-5 opacity-80">{worker.description}</span>
-                    ) : null}
-                  </span>
-                </Button>
-              ))}
+              {!selectedDate ? (
+                <p className="flex items-start gap-2 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  <Info className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>Velg en dato først for å se tilgjengelige behandlere.</span>
+                </p>
+              ) : availableWorkersForSelectedDate.length > 0 ? (
+                <>
+                  <Button
+                    type="button"
+                    variant={!selectedWorkerId ? 'default' : 'outline'}
+                    className="w-full bg-black text-white hover:bg-black/90 hover:text-white"
+                    onClick={() => handleWorkerSelect()}
+                    disabled={noWorkersAvailableOnSelectedDate}
+                  >
+                    {ANY_WORKER_LABEL}
+                  </Button>
+                  <div className="flex items-center gap-3 py-1">
+                    <span className="h-px flex-1 bg-slate-200" />
+                    <span className="text-xs uppercase tracking-wide text-slate-500">eller</span>
+                    <span className="h-px flex-1 bg-slate-200" />
+                  </div>
+                  {availableWorkersForSelectedDate.map((worker) => (
+                    <Button
+                      key={worker.id}
+                      type="button"
+                      variant={selectedWorkerId === worker.id ? 'default' : 'outline'}
+                      className={`h-auto min-h-16 w-full max-w-full justify-start gap-4 whitespace-normal border border-slate-300 bg-white px-4 py-4 text-slate-900 hover:bg-slate-50 hover:text-slate-900 ${worker.description ? 'items-start' : 'items-center'}`}
+                      onClick={() => handleWorkerSelect(worker.id)}
+                    >
+                      {worker.imageUrl ? (
+                        <Image
+                          src={worker.imageUrl}
+                          alt={worker.name}
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm font-medium text-slate-600">
+                          {getInitials(worker.name)}
+                        </span>
+                      )}
+                      <span className="flex min-w-0 flex-1 flex-col items-start text-left">
+                        <span className="text-base font-medium">{worker.name}</span>
+                        {worker.description ? (
+                          <span className="text-xs leading-5 opacity-80">{worker.description}</span>
+                        ) : null}
+                      </span>
+                    </Button>
+                  ))}
+                </>
+              ) : (
+                <p className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  Ingen behandlere er tilgjengelige på valgt dato.
+                </p>
+              )}
             </div>
           </DialogContent>
         </Dialog>
@@ -370,7 +413,6 @@ export function TimeSlotGrid({
               const isPast = dateKey < today
               const isSelected = selectedDate === dateKey
               const isDisabled = !inCurrentMonth || isPast
-              const isToday = dateKey === today
               const isLoadingSelectedDate = isSelected && isLoadingSlots && !selectedDateData
 
               return (
@@ -393,8 +435,6 @@ export function TimeSlotGrid({
                   <span>{date.getDate()}</span>
                   {isLoadingSelectedDate ? (
                     <span className="mx-auto mt-1 block h-3 w-3 rounded-full border-2 border-[#c89e58]/30 border-t-[#c89e58] animate-spin" />
-                  ) : isToday ? (
-                    <span className="mx-auto mt-1 block h-1.5 w-1.5 rounded-full bg-[#c89e58]" />
                   ) : null}
                 </button>
               )
@@ -404,13 +444,21 @@ export function TimeSlotGrid({
 
         <div ref={timeslotSectionRef} className="space-y-2">
           <div className="sticky top-0 z-10 bg-white py-1">
-            <h3 className="text-sm font-semibold text-slate-900">{selectedDateLabel}</h3>
+            <h3 className="text-sm font-semibold text-slate-900">
+              {selectedDateLabel ?? 'Velg en dato for å se ledige tider'}
+            </h3>
           </div>
 
-          {isLoadingSlots && !selectedDateData ? (
+          {!selectedDate ? (
             <Card className="text-slate-900 shadow-none">
               <CardContent className="py-6 text-center text-slate-600">
-                <p className='animate-pulse'>Henter ledige tider...</p>
+                <p>Velg en dato for å hente ledige tider.</p>
+              </CardContent>
+            </Card>
+          ) : isLoadingSlots && !selectedDateData ? (
+            <Card className="text-slate-900 shadow-none">
+              <CardContent className="py-6 text-center text-slate-600">
+                <p className="animate-pulse">Henter ledige tider...</p>
               </CardContent>
             </Card>
           ) : selectedTimeslots.length > 0 ? (
