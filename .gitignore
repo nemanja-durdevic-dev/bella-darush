@@ -39,8 +39,10 @@ yarn-error.log*
 next-env.d.ts
 
 .env
+.env.production
 
 /media
+/scripts
 
 # Playwright
 node_modules/
