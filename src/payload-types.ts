@@ -270,6 +270,10 @@ export interface Worker {
    */
   services?: (string | Service)[] | null;
   /**
+   * Lower values are preferred first for "Hvem som helst" bookings
+   */
+  sortOrder: number;
+  /**
    * Working hours for each day of the week
    */
   workingHours?:
@@ -642,6 +646,7 @@ export interface WorkersSelect<T extends boolean = true> {
   description?: T;
   profileImage?: T;
   services?: T;
+  sortOrder?: T;
   workingHours?:
     | T
     | {

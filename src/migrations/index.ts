@@ -8,6 +8,7 @@ import * as migration_20260227_120000_add_workers_description from './20260227_1
 import * as migration_20260302_100000_add_send_emails_to_appointments from './20260302_100000_add_send_emails_to_appointments'
 import * as migration_20260306_095400 from './20260306_095400'
 import * as migration_20260421_120000_add_worker_to_schedule_overrides from './20260421_120000_add_worker_to_schedule_overrides'
+import * as migration_20260424_090000_add_worker_sort_order from './20260424_090000_add_worker_sort_order'
 
 export const migrations = [
   {
@@ -59,5 +60,10 @@ export const migrations = [
     up: migration_20260421_120000_add_worker_to_schedule_overrides.up,
     down: migration_20260421_120000_add_worker_to_schedule_overrides.down,
     name: '20260421_120000_add_worker_to_schedule_overrides',
+  },
+  {
+    up: migration_20260424_090000_add_worker_sort_order.up,
+    down: migration_20260424_090000_add_worker_sort_order.down,
+    name: '20260424_090000_add_worker_sort_order',
   },
 ]

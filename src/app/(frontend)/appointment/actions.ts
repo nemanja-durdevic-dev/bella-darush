@@ -187,7 +187,7 @@ export async function getWorkersForServices(serviceIds: string[]) {
     where: {
       isActive: { equals: true },
     },
-    sort: 'name',
+    sort: 'sortOrder',
     limit: 100,
   })
 

@@ -17,6 +17,7 @@ const DAYS_OF_WEEK = [
 
 export const Workers: CollectionConfig = {
   slug: 'workers',
+  defaultSort: 'sortOrder',
   labels: {
     singular: 'Worker',
     plural: 'Workers',
@@ -28,7 +29,7 @@ export const Workers: CollectionConfig = {
     meta: {
       title: 'Workers',
     },
-    defaultColumns: ['name', 'email', 'isActive'],
+    defaultColumns: ['name', 'sortOrder', 'email', 'isActive'],
     description: 'Team members who can be booked for services',
   },
   access: {
@@ -79,6 +80,16 @@ export const Workers: CollectionConfig = {
       hasMany: true,
       admin: {
         description: 'Services this worker can provide',
+      },
+    },
+    {
+      name: 'sortOrder',
+      type: 'number',
+      required: true,
+      defaultValue: 0,
+      min: 0,
+      admin: {
+        description: 'Lower values are preferred first for "Hvem som helst" bookings',
       },
     },
     {
