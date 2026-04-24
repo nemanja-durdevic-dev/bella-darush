@@ -42,7 +42,7 @@ export default async function ConfirmPage({
 
   return (
     <div className="space-y-4">
-      <BackButton href={`/appointment/datetime?${serviceQuery.toString()}&worker=${workerId}`} />
+      <BackButton href={`/appointment/datetime?${serviceQuery.toString()}`} />
       <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Bekreft bestilling</h1>
       <p className="text-sm text-slate-600">
         Fyll inn dine opplysninger for å fullføre bestillingen
