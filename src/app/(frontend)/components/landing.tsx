@@ -56,8 +56,7 @@ const Landing = () => {
               </p>
               <p className="mt-2 text-sm leading-6 text-white/85 sm:text-base">
                 Bruk samme e-post hver gang du bestiller klipp. Etter 10 klipp bestillinger får du
-                én gratis klipp. Du kan bruke én gratis klipp per år. Tellingen startet 12.06.2026,
-                og bestillinger før denne datoen teller ikke.
+                én gratis klipp.
               </p>
               <Link href="/privacy" className="mt-3 inline-block text-sm text-[#c89e58] underline">
                 Les mer om hvordan vi bruker e-post
