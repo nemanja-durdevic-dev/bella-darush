@@ -9,6 +9,7 @@ import {
   getNowInAppointmentTimezone,
   toAdminDayOnlyISOString,
 } from '@/lib/appointmentDate'
+import { normalizeEmail } from '@/lib/normalizeEmail'
 
 const TIMESLOT_INTERVAL_MINUTES = 30
 
@@ -764,7 +765,8 @@ export async function createAppointment(
       return { success: false, error: errors }
     }
 
-    const { customerName, customerEmail, customerPhone, notes } = customerValidation.data
+    const { customerName, customerPhone, notes } = customerValidation.data
+    const customerEmail = normalizeEmail(customerValidation.data.customerEmail)
 
     // Find or create customer
     const existingCustomer = await payload.find({

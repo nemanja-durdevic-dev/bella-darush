@@ -5,6 +5,11 @@
 
 import type { Appointment, Customer, Service, Worker } from '../../payload-types'
 import {
+  getAppointmentLoyalty,
+  getLoyaltyPricing,
+  LOYALTY_REQUIRED_APPOINTMENTS,
+} from '../../lib/appointmentLoyalty'
+import {
   emailStyles,
   formatDate,
   formatDuration,
@@ -28,7 +33,19 @@ export function generateNotificationHTML(data: NotificationEmailData): string {
   const { appointment, customer, services, worker } = data
   const serviceNames = formatServiceNames(services.map((service) => service.name))
   const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
-  const totalPrice = services.reduce((sum, service) => sum + service.price, 0)
+  const loyalty = getAppointmentLoyalty(appointment)
+  const pricing = getLoyaltyPricing(appointment, services)
+  const hasPendingReward =
+    !loyalty.isFree && loyalty.progressCount === LOYALTY_REQUIRED_APPOINTMENTS
+  const loyaltyProgressPercent = Math.min(
+    (loyalty.progressCount / LOYALTY_REQUIRED_APPOINTMENTS) * 100,
+    100,
+  )
+  const loyaltyText = loyalty.isFree
+    ? `${pricing.freeService?.name ?? 'En kvalifiserende tjeneste'} er gratis - kunden har nådd 10 klipp bestillinger.`
+    : hasPendingReward
+      ? 'Kunden har opptjent en gratis klipp bestilling, men årets gratis klipp er allerede brukt.'
+      : `${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger.`
 
   const adminUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
   const appointmentUrl = `${adminUrl}/admin/collections/appointments/${appointment.id}`
@@ -105,7 +122,7 @@ export function generateNotificationHTML(data: NotificationEmailData): string {
 
       <div style="${emailStyles.infoRow}">
         <span style="${emailStyles.label}">Pris:</span>
-        <span style="${emailStyles.value}"><strong>${formatPrice(totalPrice)}</strong></span>
+        <span style="${emailStyles.value}"><strong>${formatPrice(pricing.totalPrice)}</strong>${loyalty.isFree && pricing.freeService ? ` <span style="color: #16a34a;">(${pricing.freeService.name} er gratis, vanlig pris ${formatPrice(pricing.originalPrice)})</span>` : ''}</span>
       </div>
 
       <div style="${emailStyles.infoRow}">
@@ -115,6 +132,22 @@ export function generateNotificationHTML(data: NotificationEmailData): string {
             Bekreftet
           </span>
         </span>
+      </div>
+    </div>
+
+    <div style="background-color: #fffbeb; border: 1px solid #f3d38b; padding: 20px; margin: 30px 0;">
+      <h2 style="margin: 0 0 10px 0; color: #0f172a; font-size: 18px; font-weight: 600;">
+        Lojalitetsprogram
+      </h2>
+      <p style="margin: 0 0 14px 0; color: #475569;">
+        ${loyaltyText}
+      </p>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #0f172a; font-size: 14px; font-weight: 600;">
+        <span>Fremgang</span>
+        <span>${loyalty.progressCount} / ${LOYALTY_REQUIRED_APPOINTMENTS}</span>
+      </div>
+      <div style="background-color: #ffffff; border: 1px solid #f3d38b; height: 10px; overflow: hidden;">
+        <div style="background-color: #c89e58; height: 10px; width: ${loyaltyProgressPercent}%;"></div>
       </div>
     </div>
 
@@ -160,7 +193,15 @@ export function generateNotificationText(data: NotificationEmailData): string {
   const { appointment, customer, services, worker } = data
   const serviceNames = formatServiceNames(services.map((service) => service.name))
   const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
-  const totalPrice = services.reduce((sum, service) => sum + service.price, 0)
+  const loyalty = getAppointmentLoyalty(appointment)
+  const pricing = getLoyaltyPricing(appointment, services)
+  const hasPendingReward =
+    !loyalty.isFree && loyalty.progressCount === LOYALTY_REQUIRED_APPOINTMENTS
+  const loyaltyText = loyalty.isFree
+    ? `${pricing.freeService?.name ?? 'En kvalifiserende tjeneste'} er gratis - kunden har nådd 10 klipp bestillinger.`
+    : hasPendingReward
+      ? 'Kunden har opptjent en gratis klipp bestilling, men årets gratis klipp er allerede brukt.'
+      : `${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger.`
 
   const adminUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
   const appointmentUrl = `${adminUrl}/admin/collections/appointments/${appointment.id}`
@@ -189,8 +230,13 @@ Behandler:  ${worker.name}
 Dato:       ${formatDate(appointment.appointmentDate)}
 Tid:        ${formatTime(appointment.appointmentTime)}
 Varighet:   ${formatDuration(totalDuration)}
-Pris:       ${formatPrice(totalPrice)}
+Pris:       ${formatPrice(pricing.totalPrice)}${loyalty.isFree && pricing.freeService ? ` (${pricing.freeService.name} er gratis, vanlig pris ${formatPrice(pricing.originalPrice)})` : ''}
 Status:     Bekreftet
+
+LOJALITETSPROGRAM
+-----------------
+${loyaltyText}
+Fremgang:   ${loyalty.progressCount} / ${LOYALTY_REQUIRED_APPOINTMENTS}
 
 ${appointment.notes ? `\nKUNDENS NOTATER\n---------------\n${appointment.notes}\n` : ''}
 

@@ -5,6 +5,11 @@
 
 import type { Appointment, Customer, Service, Worker } from '../../payload-types'
 import {
+  getAppointmentLoyalty,
+  getLoyaltyPricing,
+  LOYALTY_REQUIRED_APPOINTMENTS,
+} from '../../lib/appointmentLoyalty'
+import {
   emailStyles,
   formatDate,
   formatDuration,
@@ -28,7 +33,19 @@ export function generateConfirmationHTML(data: ConfirmationEmailData): string {
   const { appointment, customer, services, worker } = data
   const serviceNames = formatServiceNames(services.map((service) => service.name))
   const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
-  const totalPrice = services.reduce((sum, service) => sum + service.price, 0)
+  const loyalty = getAppointmentLoyalty(appointment)
+  const pricing = getLoyaltyPricing(appointment, services)
+  const hasPendingReward =
+    !loyalty.isFree && loyalty.progressCount === LOYALTY_REQUIRED_APPOINTMENTS
+  const loyaltyProgressPercent = Math.min(
+    (loyalty.progressCount / LOYALTY_REQUIRED_APPOINTMENTS) * 100,
+    100,
+  )
+  const loyaltyText = loyalty.isFree
+    ? `${pricing.freeService?.name ?? 'En kvalifiserende tjeneste'} er gratis fordi du har nådd din 10. klipp bestilling.`
+    : hasPendingReward
+      ? 'Du har opptjent en gratis klipp bestilling. Siden årets gratis klipp allerede er brukt, kan du bruke den neste år.'
+      : `Du har ${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger. Din 10. klipp bestilling blir gratis.`
 
   // Generate cancellation URL
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
@@ -77,7 +94,23 @@ export function generateConfirmationHTML(data: ConfirmationEmailData): string {
 
       <div style="${emailStyles.infoRow}">
         <span style="${emailStyles.label}">Pris:</span>
-        <span style="${emailStyles.value}"><strong>${formatPrice(totalPrice)}</strong></span>
+        <span style="${emailStyles.value}"><strong>${formatPrice(pricing.totalPrice)}</strong>${loyalty.isFree && pricing.freeService ? ` <span style="color: #16a34a;">(${pricing.freeService.name} er gratis, vanlig pris ${formatPrice(pricing.originalPrice)})</span>` : ''}</span>
+      </div>
+    </div>
+
+    <div style="background-color: #fffbeb; border: 1px solid #f3d38b; padding: 20px; margin: 30px 0;">
+      <h2 style="margin: 0 0 10px 0; color: #0f172a; font-size: 18px; font-weight: 600;">
+        Lojalitetsprogram
+      </h2>
+      <p style="margin: 0 0 14px 0; color: #475569;">
+        ${loyaltyText}
+      </p>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #0f172a; font-size: 14px; font-weight: 600;">
+        <span>Fremgang</span>
+        <span>${loyalty.progressCount} / ${LOYALTY_REQUIRED_APPOINTMENTS}</span>
+      </div>
+      <div style="background-color: #ffffff; border: 1px solid #f3d38b; height: 10px; overflow: hidden;">
+        <div style="background-color: #c89e58; height: 10px; width: ${loyaltyProgressPercent}%;"></div>
       </div>
     </div>
 
@@ -139,7 +172,15 @@ export function generateConfirmationText(data: ConfirmationEmailData): string {
   const { appointment, customer, services, worker } = data
   const serviceNames = formatServiceNames(services.map((service) => service.name))
   const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
-  const totalPrice = services.reduce((sum, service) => sum + service.price, 0)
+  const loyalty = getAppointmentLoyalty(appointment)
+  const pricing = getLoyaltyPricing(appointment, services)
+  const hasPendingReward =
+    !loyalty.isFree && loyalty.progressCount === LOYALTY_REQUIRED_APPOINTMENTS
+  const loyaltyText = loyalty.isFree
+    ? `${pricing.freeService?.name ?? 'En kvalifiserende tjeneste'} er gratis fordi du har nådd din 10. klipp bestilling.`
+    : hasPendingReward
+      ? 'Du har opptjent en gratis klipp bestilling. Siden årets gratis klipp allerede er brukt, kan du bruke den neste år.'
+      : `Du har ${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger. Din 10. klipp bestilling blir gratis.`
 
   // Generate cancellation URL
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
@@ -161,7 +202,12 @@ Tjeneste:   ${serviceNames}
 Dato:       ${formatDate(appointment.appointmentDate)}
 Tid:        ${formatTime(appointment.appointmentTime)}
 Varighet:   ${formatDuration(totalDuration)}
-Pris:       ${formatPrice(totalPrice)}
+Pris:       ${formatPrice(pricing.totalPrice)}${loyalty.isFree && pricing.freeService ? ` (${pricing.freeService.name} er gratis, vanlig pris ${formatPrice(pricing.originalPrice)})` : ''}
+
+LOJALITETSPROGRAM
+-----------------
+${loyaltyText}
+Fremgang:   ${loyalty.progressCount} / ${LOYALTY_REQUIRED_APPOINTMENTS}
 
 
 DIN BEHANDLER

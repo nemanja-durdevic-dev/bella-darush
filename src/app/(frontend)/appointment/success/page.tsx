@@ -8,6 +8,11 @@ import { formatServiceNames } from '../utils'
 import { formatAppointmentDateNorwegian } from '@/lib/appointmentDate'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+  getAppointmentLoyalty,
+  getLoyaltyPricing,
+  LOYALTY_REQUIRED_APPOINTMENTS,
+} from '@/lib/appointmentLoyalty'
 
 export default async function SuccessPage({
   searchParams,
@@ -38,7 +43,11 @@ export default async function SuccessPage({
   const worker = appointment.worker as Worker
   const customer = appointment.customer as Customer
   const serviceNames = formatServiceNames(services.map((service) => service.name))
-  const totalPrice = services.reduce((sum, service) => sum + service.price, 0)
+  const loyalty = getAppointmentLoyalty(appointment)
+  const pricing = getLoyaltyPricing(appointment, services)
+  const hasPendingReward =
+    !loyalty.isFree && loyalty.progressCount === LOYALTY_REQUIRED_APPOINTMENTS
+  const progressPercent = (loyalty.progressCount / LOYALTY_REQUIRED_APPOINTMENTS) * 100
 
   return (
     <div className="space-y-4 text-center">
@@ -74,10 +83,45 @@ export default async function SuccessPage({
           </div>
           <div className="flex items-center justify-between py-3">
             <span className="text-sm text-slate-600">Pris</span>
-            <span className="text-right font-semibold text-[#c89e58]">{totalPrice} kr</span>
+            <span className="text-right font-semibold text-[#c89e58]">
+              {pricing.totalPrice} kr
+              {loyalty.isFree && pricing.freeService && (
+                <span className="block text-xs font-normal text-emerald-700">
+                  {pricing.freeService.name} er gratis, vanlig pris {pricing.originalPrice} kr
+                </span>
+              )}
+            </span>
           </div>
         </CardContent>
       </Card>
+
+      {loyalty.qualifyingCount > 0 && (
+        <Card className="border-amber-200 bg-amber-50 text-left text-slate-900 shadow-none">
+          <CardContent className="space-y-3 pt-6">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="font-semibold text-slate-900">Lojalitetsprogram</h2>
+                <p className="text-sm text-slate-600">
+                  {loyalty.isFree
+                    ? `${pricing.freeService?.name ?? 'En kvalifiserende tjeneste'} er gratis fordi du har nådd din 10. klipp bestilling.`
+                    : hasPendingReward
+                      ? 'Du har opptjent en gratis klipp bestilling. Siden årets gratis klipp allerede er brukt, kan du bruke den neste år.'
+                      : `Du har ${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger.`}
+                </p>
+              </div>
+              <span className="shrink-0 text-sm font-semibold text-[#c89e58]">
+                {loyalty.progressCount}/{LOYALTY_REQUIRED_APPOINTMENTS}
+              </span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-white">
+              <div
+                className="h-full rounded-full bg-[#c89e58]"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="flex flex-col gap-3">
         <Button

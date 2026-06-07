@@ -9,6 +9,9 @@ import * as migration_20260302_100000_add_send_emails_to_appointments from './20
 import * as migration_20260306_095400 from './20260306_095400'
 import * as migration_20260421_120000_add_worker_to_schedule_overrides from './20260421_120000_add_worker_to_schedule_overrides'
 import * as migration_20260424_090000_add_worker_sort_order from './20260424_090000_add_worker_sort_order'
+import * as migration_20260607_120000_add_appointment_loyalty from './20260607_120000_add_appointment_loyalty'
+import * as migration_20260607_130000_add_service_loyalty_flag from './20260607_130000_add_service_loyalty_flag'
+import * as migration_20260607_140000_normalize_customer_emails from './20260607_140000_normalize_customer_emails'
 
 export const migrations = [
   {
@@ -65,5 +68,20 @@ export const migrations = [
     up: migration_20260424_090000_add_worker_sort_order.up,
     down: migration_20260424_090000_add_worker_sort_order.down,
     name: '20260424_090000_add_worker_sort_order',
+  },
+  {
+    up: migration_20260607_120000_add_appointment_loyalty.up,
+    down: migration_20260607_120000_add_appointment_loyalty.down,
+    name: '20260607_120000_add_appointment_loyalty',
+  },
+  {
+    up: migration_20260607_130000_add_service_loyalty_flag.up,
+    down: migration_20260607_130000_add_service_loyalty_flag.down,
+    name: '20260607_130000_add_service_loyalty_flag',
+  },
+  {
+    up: migration_20260607_140000_normalize_customer_emails.up,
+    down: migration_20260607_140000_normalize_customer_emails.down,
+    name: '20260607_140000_normalize_customer_emails',
   },
 ]

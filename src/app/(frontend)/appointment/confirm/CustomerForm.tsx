@@ -85,6 +85,9 @@ export function CustomerForm({ serviceIds, workerId, date, time }: CustomerFormP
           className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
           disabled={isPending}
         />
+        <p className="text-sm text-[#c89e58]">
+          Bruk samme e-post hver gang for å samle klipp bestillinger og få den 10. gratis.
+        </p>
       </div>
 
       <div className="space-y-2">

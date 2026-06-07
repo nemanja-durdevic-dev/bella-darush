@@ -240,6 +240,10 @@ export interface Service {
    */
   price: number;
   /**
+   * Counts toward the yearly loyalty program and can be the free service.
+   */
+  countsTowardLoyalty?: boolean | null;
+  /**
    * Whether this service is available for booking
    */
   isActive?: boolean | null;
@@ -424,6 +428,23 @@ export interface Appointment {
    * When enabled, email notifications are sent after create, update, and delete actions.
    */
   sendEmails?: boolean | null;
+  /**
+   * Loyalty reward state for appointments with loyalty-eligible services.
+   */
+  loyalty?: {
+    /**
+     * This appointment uses the free loyalty reward.
+     */
+    isFree?: boolean | null;
+    /**
+     * Customer qualifying appointment number when this was booked.
+     */
+    qualifyingCount?: number | null;
+    /**
+     * Progress toward the next free appointment.
+     */
+    progressCount?: number | null;
+  };
   /**
    * Secure token for customer cancellation (automatically generated)
    */
@@ -631,6 +652,7 @@ export interface ServicesSelect<T extends boolean = true> {
   description?: T;
   duration?: T;
   price?: T;
+  countsTowardLoyalty?: T;
   isActive?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -717,6 +739,13 @@ export interface AppointmentsSelect<T extends boolean = true> {
   status?: T;
   notes?: T;
   sendEmails?: T;
+  loyalty?:
+    | T
+    | {
+        isFree?: T;
+        qualifyingCount?: T;
+        progressCount?: T;
+      };
   cancellationToken?: T;
   emailsSent?:
     | T

@@ -1,5 +1,9 @@
 import type { CollectionConfig } from 'payload'
 import { adminsAndWorkers, adminsOnly } from '../access'
+import {
+  applyAppointmentLoyalty,
+  syncCustomerAppointmentLoyalty,
+} from '../hooks/applyAppointmentLoyalty'
 import { preventDoubleBooking } from '../hooks/preventDoubleBooking'
 import { validateServiceWorker } from '../hooks/validateServiceWorker'
 import { sendAppointmentDeletionEmail, sendAppointmentEmails } from '../hooks/sendAppointmentEmails'
@@ -34,12 +38,23 @@ export const Appointments: CollectionConfig = {
       'appointmentDate',
       'appointmentTime',
       'status',
+      'loyalty.isFree',
+      'loyalty.progressCount',
     ],
     description: 'Customer bookings, statuses, and email notification tracking',
   },
   hooks: {
-    beforeChange: [generateCancellationToken, validateServiceWorker, preventDoubleBooking],
-    afterChange: [sendAppointmentEmails, revalidateAppointmentServicePageAfterChange],
+    beforeChange: [
+      generateCancellationToken,
+      validateServiceWorker,
+      preventDoubleBooking,
+      applyAppointmentLoyalty,
+    ],
+    afterChange: [
+      sendAppointmentEmails,
+      syncCustomerAppointmentLoyalty,
+      revalidateAppointmentServicePageAfterChange,
+    ],
     afterDelete: [sendAppointmentDeletionEmail, revalidateAppointmentServicePageAfterDelete],
   },
   access: {
@@ -144,6 +159,45 @@ export const Appointments: CollectionConfig = {
           'When enabled, email notifications are sent after create, update, and delete actions.',
         position: 'sidebar',
       },
+    },
+    {
+      name: 'loyalty',
+      type: 'group',
+      admin: {
+        description: 'Loyalty reward state for appointments with loyalty-eligible services.',
+      },
+      fields: [
+        {
+          name: 'isFree',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: {
+            readOnly: true,
+            description: 'This appointment uses the free loyalty reward.',
+          },
+        },
+        {
+          name: 'qualifyingCount',
+          type: 'number',
+          defaultValue: 0,
+          min: 0,
+          admin: {
+            readOnly: true,
+            description: 'Customer qualifying appointment number when this was booked.',
+          },
+        },
+        {
+          name: 'progressCount',
+          type: 'number',
+          defaultValue: 0,
+          min: 0,
+          max: 10,
+          admin: {
+            readOnly: true,
+            description: 'Progress toward the next free appointment.',
+          },
+        },
+      ],
     },
     // Cancellation token for customer self-service
     {

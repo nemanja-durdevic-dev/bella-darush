@@ -23,7 +23,7 @@ export const Services: CollectionConfig = {
     meta: {
       title: 'Services',
     },
-    defaultColumns: ['name', 'duration', 'price', 'isActive'],
+    defaultColumns: ['name', 'duration', 'price', 'countsTowardLoyalty', 'isActive'],
     description: 'Bookable services offered by the business',
   },
   access: {
@@ -63,6 +63,14 @@ export const Services: CollectionConfig = {
       min: 0,
       admin: {
         description: 'Price in NOK',
+      },
+    },
+    {
+      name: 'countsTowardLoyalty',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'Counts toward the yearly loyalty program and can be the free service.',
       },
     },
     {

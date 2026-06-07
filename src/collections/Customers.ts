@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { adminsAndWorkers, adminsOnly, hideFromWorkers } from '../access'
+import { normalizeCustomerEmail } from '../hooks/normalizeCustomerEmail'
 
 export const Customers: CollectionConfig = {
   slug: 'customers',
@@ -14,7 +15,7 @@ export const Customers: CollectionConfig = {
     meta: {
       title: 'Customers',
     },
-    defaultColumns: ['name', 'email', 'phone', 'createdAt'],
+    defaultColumns: ['name', 'email', 'phone', 'updatedAt', 'createdAt'],
     description: 'Customer records for booking management',
   },
   access: {
@@ -22,6 +23,9 @@ export const Customers: CollectionConfig = {
     create: adminsOnly,
     update: adminsOnly,
     delete: adminsOnly,
+  },
+  hooks: {
+    beforeValidate: [normalizeCustomerEmail],
   },
   fields: [
     {
