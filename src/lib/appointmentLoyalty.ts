@@ -1,7 +1,7 @@
 import type { Appointment, Service } from '@/payload-types'
 
 export const LOYALTY_REQUIRED_APPOINTMENTS = 10
-export const LOYALTY_START_DATE = '2026-06-12T00:00:00.000Z'
+export const LOYALTY_START_DATE = '2026-06-08T00:00:00.000Z'
 
 export function isLoyaltyService(service: Pick<Service, 'countsTowardLoyalty'>): boolean {
   return Boolean(service.countsTowardLoyalty)
@@ -16,8 +16,7 @@ export function appointmentHasLoyaltyService(
 export function getLoyaltyProgressFromCount(qualifyingCount: number): number {
   if (qualifyingCount <= 0) return 0
 
-  const progress = qualifyingCount % LOYALTY_REQUIRED_APPOINTMENTS
-  return progress === 0 ? LOYALTY_REQUIRED_APPOINTMENTS : progress
+  return Math.min(qualifyingCount, LOYALTY_REQUIRED_APPOINTMENTS)
 }
 
 export function getAppointmentLoyalty(appointment: Appointment) {

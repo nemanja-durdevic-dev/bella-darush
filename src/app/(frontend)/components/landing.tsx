@@ -55,8 +55,8 @@ const Landing = () => {
                 Lojalitetsprogram
               </p>
               <p className="mt-2 text-sm leading-6 text-white/85 sm:text-base">
-                Bruk samme e-post hver gang du bestiller klipp. Etter 10 klipp bestillinger får du
-                én gratis klipp. Det er kun mulig å bruke én gratis klipp per år.
+                Bruk samme e-post hver gang du bestiller klipp. Etter 9 klipp bestillinger får du
+                én gratis klipp i din 12-måneders periode.
               </p>
               <Link href="/privacy" className="mt-3 inline-block text-sm text-[#c89e58] underline">
                 Les mer om lojalitetsprogrammet

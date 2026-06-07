@@ -132,10 +132,13 @@ describe('loyalty helpers', () => {
 })
 
 describe('applyAppointmentLoyalty', () => {
-  it('carries progress across years and makes the 10th booking free', async () => {
+  it('carries progress across years within the same 12-month cycle', async () => {
     const existingAppointments = [
       ...previousAppointments(6, { year: 2026 }),
-      ...previousAppointments(3, { year: 2027 }),
+      ...previousAppointments(3, { year: 2027 }).map((item, index) => ({
+        ...item,
+        appointmentDate: `2027-0${index + 1}-01T00:00:00.000Z`,
+      })),
     ]
 
     const { result } = await applyLoyalty({
@@ -156,7 +159,7 @@ describe('applyAppointmentLoyalty', () => {
   })
 
   it('ignores appointments before the loyalty start date', async () => {
-    const existingAppointments = previousAppointments(9, { year: 2026 }).map((item, index) => ({
+    const existingAppointments = previousAppointments(7, { year: 2026 }).map((item, index) => ({
       ...item,
       appointmentDate: `2026-06-${String(index + 1).padStart(2, '0')}T00:00:00.000Z`,
     }))
@@ -165,7 +168,7 @@ describe('applyAppointmentLoyalty', () => {
       data: {
         customer: 'customer-1',
         service: ['service-1'],
-        appointmentDate: '2026-06-12T00:00:00.000Z',
+        appointmentDate: '2026-06-08T00:00:00.000Z',
         status: 'confirmed',
       },
       existingAppointments,
@@ -178,7 +181,7 @@ describe('applyAppointmentLoyalty', () => {
     })
   })
 
-  it('does not give a second free reward in the same year', async () => {
+  it('does not give a second free reward in the same 12-month cycle', async () => {
     const existingAppointments = previousAppointments(19, { year: 2027, freeAt: [10] })
 
     const { result } = await applyLoyalty({
@@ -198,7 +201,7 @@ describe('applyAppointmentLoyalty', () => {
     })
   })
 
-  it('redeems a pending reward in the next year', async () => {
+  it('keeps later bookings in the same cycle at 10 of 10', async () => {
     const existingAppointments = previousAppointments(20, { year: 2027, freeAt: [10] })
 
     const { result } = await applyLoyalty({
@@ -212,8 +215,33 @@ describe('applyAppointmentLoyalty', () => {
     })
 
     expect(result.loyalty).toEqual({
-      isFree: true,
+      isFree: false,
       qualifyingCount: 21,
+      progressCount: 10,
+    })
+  })
+
+  it('starts a new cycle with the first booking after the previous cycle ends', async () => {
+    const existingAppointments = previousAppointments(10, { year: 2026, freeAt: [10] }).map(
+      (item, index) => ({
+        ...item,
+        appointmentDate: `2026-07-${String(index + 10).padStart(2, '0')}T00:00:00.000Z`,
+      }),
+    )
+
+    const { result } = await applyLoyalty({
+      data: {
+        customer: 'customer-1',
+        service: ['service-1'],
+        appointmentDate: '2027-07-10T00:00:00.000Z',
+        status: 'confirmed',
+      },
+      existingAppointments,
+    })
+
+    expect(result.loyalty).toEqual({
+      isFree: false,
+      qualifyingCount: 1,
       progressCount: 1,
     })
   })

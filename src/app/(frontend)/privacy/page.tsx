@@ -43,8 +43,9 @@ const PrivacyPage = () => {
             riktig, må du bruke samme e-postadresse hver gang du bestiller.
           </p>
           <p>
-            Tellingen i lojalitetsprogrammet startet 12.06.2026. Bestillinger før denne datoen
-            teller ikke med i lojalitetsprogrammet.
+            Lojalitetsprogrammet startet 08.06.2026. Bestillinger før denne datoen teller ikke med.
+            Din første klipp bestilling etter 08.06.2026 starter en 12-måneders periode. Når
+            perioden er over, starter første nye klipp bestilling en ny 12-måneders periode.
           </p>
           <p>
             Vi bruker kun nødvendig informasjon for dette formålet: e-postadresse,

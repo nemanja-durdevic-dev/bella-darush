@@ -6,6 +6,7 @@ import { ErrorMessage } from '../components/ErrorMessage'
 import type { CustomerFormProps, AppointmentActionResult } from '../types'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -86,7 +87,10 @@ export function CustomerForm({ serviceIds, workerId, date, time }: CustomerFormP
           disabled={isPending}
         />
         <p className="text-sm text-[#c89e58]">
-          Bruk samme e-post hver gang for å samle klipp bestillinger og få den 10. gratis.
+          Bruk samme e-post hver gang for å samle klipp bestillinger og få den 10. gratis.{' '}
+          <Link href="/privacy" className="underline underline-offset-2">
+            Les mer om lojalitetsprogrammet.
+          </Link>
         </p>
       </div>
 

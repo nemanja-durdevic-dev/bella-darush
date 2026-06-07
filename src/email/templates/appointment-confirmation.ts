@@ -35,7 +35,7 @@ export function generateConfirmationHTML(data: ConfirmationEmailData): string {
   const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
   const loyalty = getAppointmentLoyalty(appointment)
   const pricing = getLoyaltyPricing(appointment, services)
-  const hasPendingReward =
+  const hasReachedCycleLimit =
     !loyalty.isFree && loyalty.progressCount === LOYALTY_REQUIRED_APPOINTMENTS
   const loyaltyProgressPercent = Math.min(
     (loyalty.progressCount / LOYALTY_REQUIRED_APPOINTMENTS) * 100,
@@ -43,9 +43,9 @@ export function generateConfirmationHTML(data: ConfirmationEmailData): string {
   )
   const loyaltyText = loyalty.isFree
     ? `${pricing.freeService?.name ?? 'En kvalifiserende tjeneste'} er gratis fordi du har nådd din 10. klipp bestilling.`
-    : hasPendingReward
-      ? 'Du har opptjent en gratis klipp bestilling. Siden årets gratis klipp allerede er brukt, kan du bruke den neste år.'
-      : `Du har ${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger. Din 10. klipp bestilling blir gratis.`
+    : hasReachedCycleLimit
+      ? 'Du har nådd 10 klipp bestillinger i denne 12-måneders perioden. Tellingen starter på nytt i neste periode.'
+      : `Du har ${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger i denne 12-måneders perioden. Din 10. klipp bestilling blir gratis.`
 
   // Generate cancellation URL
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
@@ -174,13 +174,13 @@ export function generateConfirmationText(data: ConfirmationEmailData): string {
   const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
   const loyalty = getAppointmentLoyalty(appointment)
   const pricing = getLoyaltyPricing(appointment, services)
-  const hasPendingReward =
+  const hasReachedCycleLimit =
     !loyalty.isFree && loyalty.progressCount === LOYALTY_REQUIRED_APPOINTMENTS
   const loyaltyText = loyalty.isFree
     ? `${pricing.freeService?.name ?? 'En kvalifiserende tjeneste'} er gratis fordi du har nådd din 10. klipp bestilling.`
-    : hasPendingReward
-      ? 'Du har opptjent en gratis klipp bestilling. Siden årets gratis klipp allerede er brukt, kan du bruke den neste år.'
-      : `Du har ${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger. Din 10. klipp bestilling blir gratis.`
+    : hasReachedCycleLimit
+      ? 'Du har nådd 10 klipp bestillinger i denne 12-måneders perioden. Tellingen starter på nytt i neste periode.'
+      : `Du har ${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger i denne 12-måneders perioden. Din 10. klipp bestilling blir gratis.`
 
   // Generate cancellation URL
   const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'

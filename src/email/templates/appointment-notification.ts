@@ -35,7 +35,7 @@ export function generateNotificationHTML(data: NotificationEmailData): string {
   const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
   const loyalty = getAppointmentLoyalty(appointment)
   const pricing = getLoyaltyPricing(appointment, services)
-  const hasPendingReward =
+  const hasReachedCycleLimit =
     !loyalty.isFree && loyalty.progressCount === LOYALTY_REQUIRED_APPOINTMENTS
   const loyaltyProgressPercent = Math.min(
     (loyalty.progressCount / LOYALTY_REQUIRED_APPOINTMENTS) * 100,
@@ -43,9 +43,9 @@ export function generateNotificationHTML(data: NotificationEmailData): string {
   )
   const loyaltyText = loyalty.isFree
     ? `${pricing.freeService?.name ?? 'En kvalifiserende tjeneste'} er gratis - kunden har nådd 10 klipp bestillinger.`
-    : hasPendingReward
-      ? 'Kunden har opptjent en gratis klipp bestilling, men årets gratis klipp er allerede brukt.'
-      : `${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger.`
+    : hasReachedCycleLimit
+      ? 'Kunden har nådd 10 klipp bestillinger i denne 12-måneders perioden.'
+      : `${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger i denne 12-måneders perioden.`
 
   const adminUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
   const appointmentUrl = `${adminUrl}/admin/collections/appointments/${appointment.id}`
@@ -195,13 +195,13 @@ export function generateNotificationText(data: NotificationEmailData): string {
   const totalDuration = services.reduce((sum, service) => sum + service.duration, 0)
   const loyalty = getAppointmentLoyalty(appointment)
   const pricing = getLoyaltyPricing(appointment, services)
-  const hasPendingReward =
+  const hasReachedCycleLimit =
     !loyalty.isFree && loyalty.progressCount === LOYALTY_REQUIRED_APPOINTMENTS
   const loyaltyText = loyalty.isFree
     ? `${pricing.freeService?.name ?? 'En kvalifiserende tjeneste'} er gratis - kunden har nådd 10 klipp bestillinger.`
-    : hasPendingReward
-      ? 'Kunden har opptjent en gratis klipp bestilling, men årets gratis klipp er allerede brukt.'
-      : `${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger.`
+    : hasReachedCycleLimit
+      ? 'Kunden har nådd 10 klipp bestillinger i denne 12-måneders perioden.'
+      : `${loyalty.progressCount} av ${LOYALTY_REQUIRED_APPOINTMENTS} klipp bestillinger i denne 12-måneders perioden.`
 
   const adminUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
   const appointmentUrl = `${adminUrl}/admin/collections/appointments/${appointment.id}`

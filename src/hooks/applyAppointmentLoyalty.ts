@@ -7,6 +7,14 @@ import {
   LOYALTY_START_DATE,
 } from '@/lib/appointmentLoyalty'
 
+const CURRENT_APPOINTMENT_ID = '__current_appointment__'
+
+type LoyaltyEntry = {
+  id: string
+  appointmentDate: string
+  order: number
+}
+
 function getRelationshipId(value: unknown): string | null {
   if (typeof value === 'string') return value
   if (value && typeof value === 'object' && 'id' in value && typeof value.id === 'string') {
@@ -22,27 +30,65 @@ function getRelationshipIds(value: unknown): string[] {
   return value.map(getRelationshipId).filter((id): id is string => Boolean(id))
 }
 
-function getAppointmentYear(dateString: string): number {
-  return new Date(dateString).getUTCFullYear()
+function getEmptyLoyaltyState() {
+  return {
+    isFree: false,
+    qualifyingCount: 0,
+    progressCount: 0,
+  }
 }
 
-function getLoyaltyState(
-  qualifyingCount: number,
-  redeemedRewards: number,
-  hasRedeemedThisYear: boolean,
-) {
-  const earnedRewards = Math.floor(qualifyingCount / LOYALTY_REQUIRED_APPOINTMENTS)
-  const hasAvailableReward = earnedRewards > redeemedRewards
-  const isFree = hasAvailableReward && !hasRedeemedThisYear
+function getCycleEnd(cycleStart: string): string {
+  const end = new Date(cycleStart)
+  end.setUTCFullYear(end.getUTCFullYear() + 1)
+
+  return end.toISOString()
+}
+
+function getLoyaltyState(qualifyingCount: number) {
+  const isFree = qualifyingCount === LOYALTY_REQUIRED_APPOINTMENTS
 
   return {
     isFree,
     qualifyingCount,
-    progressCount:
-      hasAvailableReward && !isFree
-        ? LOYALTY_REQUIRED_APPOINTMENTS
-        : getLoyaltyProgressFromCount(qualifyingCount),
+    progressCount: getLoyaltyProgressFromCount(qualifyingCount),
   }
+}
+
+function sortLoyaltyEntries(entries: LoyaltyEntry[]): LoyaltyEntry[] {
+  return [...entries].sort((a, b) => {
+    if (a.appointmentDate !== b.appointmentDate) {
+      return a.appointmentDate.localeCompare(b.appointmentDate)
+    }
+
+    if (a.order !== b.order) {
+      return a.order - b.order
+    }
+
+    return a.id.localeCompare(b.id)
+  })
+}
+
+function getLoyaltyStateForEntry(entries: LoyaltyEntry[], targetId: string) {
+  let cycleStart: string | null = null
+  let qualifyingCount = 0
+
+  for (const entry of sortLoyaltyEntries(entries)) {
+    if (!cycleStart || entry.appointmentDate >= getCycleEnd(cycleStart)) {
+      cycleStart = entry.appointmentDate
+      qualifyingCount = 0
+    }
+
+    qualifyingCount += 1
+
+    const loyaltyState = getLoyaltyState(qualifyingCount)
+
+    if (entry.id === targetId) {
+      return loyaltyState
+    }
+  }
+
+  return getEmptyLoyaltyState()
 }
 
 export const applyAppointmentLoyalty: CollectionBeforeChangeHook<Appointment> = async ({
@@ -67,11 +113,7 @@ export const applyAppointmentLoyalty: CollectionBeforeChangeHook<Appointment> = 
     appointmentDate < LOYALTY_START_DATE ||
     status === 'cancelled'
   ) {
-    data.loyalty = {
-      isFree: false,
-      qualifyingCount: 0,
-      progressCount: 0,
-    }
+    data.loyalty = getEmptyLoyaltyState()
     return data
   }
 
@@ -87,15 +129,9 @@ export const applyAppointmentLoyalty: CollectionBeforeChangeHook<Appointment> = 
   )) as Service[]
 
   if (!appointmentHasLoyaltyService(services)) {
-    data.loyalty = {
-      isFree: false,
-      qualifyingCount: 0,
-      progressCount: 0,
-    }
+    data.loyalty = getEmptyLoyaltyState()
     return data
   }
-
-  const appointmentYear = getAppointmentYear(appointmentDate)
 
   const existingAppointments = await req.payload.find({
     collection: 'appointments',
@@ -112,27 +148,36 @@ export const applyAppointmentLoyalty: CollectionBeforeChangeHook<Appointment> = 
     req,
   })
 
-  const previousQualifyingAppointments = existingAppointments.docs.filter((appointment) => {
-    if (originalDoc?.id && appointment.id === originalDoc.id) return false
+  const currentEntryId = originalDoc?.id ?? CURRENT_APPOINTMENT_ID
+  const previousQualifyingEntries = existingAppointments.docs.flatMap((appointment) => {
+    if (appointment.id === currentEntryId) return []
 
     const appointmentServices = Array.isArray(appointment.service)
       ? (appointment.service as Service[])
       : [appointment.service as Service]
 
-    return appointmentHasLoyaltyService(appointmentServices)
+    if (!appointmentHasLoyaltyService(appointmentServices)) return []
+
+    return [
+      {
+        id: appointment.id,
+        appointmentDate: appointment.appointmentDate,
+        order: 0,
+      },
+    ]
   })
 
-  const qualifyingCount = previousQualifyingAppointments.length + 1
-  const redeemedRewards = previousQualifyingAppointments.filter(
-    (appointment) => appointment.loyalty?.isFree,
-  ).length
-  const hasRedeemedThisYear = previousQualifyingAppointments.some(
-    (appointment) =>
-      appointment.loyalty?.isFree &&
-      getAppointmentYear(appointment.appointmentDate) === appointmentYear,
+  data.loyalty = getLoyaltyStateForEntry(
+    [
+      ...previousQualifyingEntries,
+      {
+        id: currentEntryId,
+        appointmentDate,
+        order: 1,
+      },
+    ],
+    currentEntryId,
   )
-
-  data.loyalty = getLoyaltyState(qualifyingCount, redeemedRewards, hasRedeemedThisYear)
 
   return data
 }
@@ -164,9 +209,7 @@ export const syncCustomerAppointmentLoyalty: CollectionAfterChangeHook<Appointme
     req,
   })
 
-  let qualifyingCount = 0
-  let redeemedRewards = 0
-  const redeemedRewardYears = new Set<number>()
+  const loyaltyEntries: LoyaltyEntry[] = []
 
   for (const appointment of appointments.docs) {
     const appointmentServices = Array.isArray(appointment.service)
@@ -177,19 +220,30 @@ export const syncCustomerAppointmentLoyalty: CollectionAfterChangeHook<Appointme
       continue
     }
 
-    qualifyingCount += 1
+    loyaltyEntries.push({
+      id: appointment.id,
+      appointmentDate: appointment.appointmentDate,
+      order: 0,
+    })
+  }
 
-    const appointmentYear = getAppointmentYear(appointment.appointmentDate)
-    const nextLoyalty = getLoyaltyState(
-      qualifyingCount,
-      redeemedRewards,
-      redeemedRewardYears.has(appointmentYear),
-    )
+  const syncedLoyaltyByAppointmentId = new Map<string, ReturnType<typeof getLoyaltyState>>()
 
-    if (nextLoyalty.isFree) {
-      redeemedRewards += 1
-      redeemedRewardYears.add(appointmentYear)
+  let cycleStart: string | null = null
+  let qualifyingCount = 0
+
+  for (const entry of sortLoyaltyEntries(loyaltyEntries)) {
+    if (!cycleStart || entry.appointmentDate >= getCycleEnd(cycleStart)) {
+      cycleStart = entry.appointmentDate
+      qualifyingCount = 0
     }
+
+    qualifyingCount += 1
+    syncedLoyaltyByAppointmentId.set(entry.id, getLoyaltyState(qualifyingCount))
+  }
+
+  for (const appointment of appointments.docs) {
+    const nextLoyalty = syncedLoyaltyByAppointmentId.get(appointment.id) ?? getEmptyLoyaltyState()
 
     const currentLoyalty = appointment.loyalty
     const isAlreadySynced =
