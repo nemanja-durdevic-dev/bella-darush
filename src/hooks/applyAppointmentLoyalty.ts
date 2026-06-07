@@ -4,6 +4,7 @@ import {
   appointmentHasLoyaltyService,
   getLoyaltyProgressFromCount,
   LOYALTY_REQUIRED_APPOINTMENTS,
+  LOYALTY_START_DATE,
 } from '@/lib/appointmentLoyalty'
 
 function getRelationshipId(value: unknown): string | null {
@@ -59,7 +60,13 @@ export const applyAppointmentLoyalty: CollectionBeforeChangeHook<Appointment> = 
   const appointmentDate = data.appointmentDate ?? originalDoc?.appointmentDate
   const status = data.status ?? originalDoc?.status ?? 'confirmed'
 
-  if (!customerId || serviceIds.length === 0 || !appointmentDate || status === 'cancelled') {
+  if (
+    !customerId ||
+    serviceIds.length === 0 ||
+    !appointmentDate ||
+    appointmentDate < LOYALTY_START_DATE ||
+    status === 'cancelled'
+  ) {
     data.loyalty = {
       isFree: false,
       qualifyingCount: 0,
@@ -93,7 +100,11 @@ export const applyAppointmentLoyalty: CollectionBeforeChangeHook<Appointment> = 
   const existingAppointments = await req.payload.find({
     collection: 'appointments',
     where: {
-      and: [{ customer: { equals: customerId } }, { status: { in: ['confirmed', 'completed'] } }],
+      and: [
+        { customer: { equals: customerId } },
+        { status: { in: ['confirmed', 'completed'] } },
+        { appointmentDate: { greater_than_equal: LOYALTY_START_DATE } },
+      ],
     },
     depth: 1,
     limit: 1000,
@@ -141,7 +152,11 @@ export const syncCustomerAppointmentLoyalty: CollectionAfterChangeHook<Appointme
   const appointments = await req.payload.find({
     collection: 'appointments',
     where: {
-      and: [{ customer: { equals: customerId } }, { status: { in: ['confirmed', 'completed'] } }],
+      and: [
+        { customer: { equals: customerId } },
+        { status: { in: ['confirmed', 'completed'] } },
+        { appointmentDate: { greater_than_equal: LOYALTY_START_DATE } },
+      ],
     },
     depth: 1,
     limit: 1000,

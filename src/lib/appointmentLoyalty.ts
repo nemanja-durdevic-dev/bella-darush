@@ -1,6 +1,7 @@
 import type { Appointment, Service } from '@/payload-types'
 
 export const LOYALTY_REQUIRED_APPOINTMENTS = 10
+export const LOYALTY_START_DATE = '2026-06-12T00:00:00.000Z'
 
 export function isLoyaltyService(service: Pick<Service, 'countsTowardLoyalty'>): boolean {
   return Boolean(service.countsTowardLoyalty)

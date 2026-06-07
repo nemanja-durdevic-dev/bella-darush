@@ -49,7 +49,7 @@ function previousAppointments(count: number, options: { year?: number; freeAt?: 
 
     return appointment({
       id: `previous-${qualifyingCount}`,
-      appointmentDate: `${year}-${String(Math.min(qualifyingCount, 28)).padStart(2, '0')}-01T00:00:00.000Z`,
+      appointmentDate: `${year}-07-${String(Math.min(qualifyingCount, 28)).padStart(2, '0')}T00:00:00.000Z`,
       service: [service({ id: 'service-1' })],
       loyalty: {
         isFree: freeAt.has(qualifyingCount),
@@ -73,7 +73,18 @@ async function applyLoyalty({
   const req = {
     payload: {
       findByID: vi.fn(({ id }) => serviceMap.get(id)),
-      find: vi.fn(() => ({ docs: existingAppointments })),
+      find: vi.fn(({ where }) => {
+        const startDate = where?.and?.find(
+          (condition: { appointmentDate?: { greater_than_equal?: string } }) =>
+            condition.appointmentDate?.greater_than_equal,
+        )?.appointmentDate?.greater_than_equal
+
+        return {
+          docs: startDate
+            ? existingAppointments.filter((item) => item.appointmentDate >= startDate)
+            : existingAppointments,
+        }
+      }),
     },
   }
 
@@ -141,6 +152,29 @@ describe('applyAppointmentLoyalty', () => {
       isFree: true,
       qualifyingCount: 10,
       progressCount: 10,
+    })
+  })
+
+  it('ignores appointments before the loyalty start date', async () => {
+    const existingAppointments = previousAppointments(9, { year: 2026 }).map((item, index) => ({
+      ...item,
+      appointmentDate: `2026-06-${String(index + 1).padStart(2, '0')}T00:00:00.000Z`,
+    }))
+
+    const { result } = await applyLoyalty({
+      data: {
+        customer: 'customer-1',
+        service: ['service-1'],
+        appointmentDate: '2026-06-12T00:00:00.000Z',
+        status: 'confirmed',
+      },
+      existingAppointments,
+    })
+
+    expect(result.loyalty).toEqual({
+      isFree: false,
+      qualifyingCount: 1,
+      progressCount: 1,
     })
   })
 

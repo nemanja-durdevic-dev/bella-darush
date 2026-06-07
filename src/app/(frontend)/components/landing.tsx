@@ -23,7 +23,7 @@ const Landing = () => {
       {/* Content goes here */}
       <div className="relative z-10 flex items-center h-full">
         <div className="max-w-[95rem] w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-white space-y-6 md:space-y-10 max-w-3xl mt-20 md:mt-20 lg:mt-56">
+          <div className="text-white space-y-6 md:space-y-10 max-w-3xl mt-20 md:mt-20 lg:mt-24 xl:mt-40 2xl:mt-56">
             <div className="space-y-4">
               <motion.h1
                 className="text-4xl md:text-5xl font-thin"
@@ -31,7 +31,7 @@ const Landing = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                Bella - Stil og Elegans
+                Stil og Elegans
               </motion.h1>
               <motion.p
                 className="text-base sm:text-lg md:text-xl"
@@ -45,6 +45,24 @@ const Landing = () => {
                 og service i en avslappende atmosfære.
               </motion.p>
             </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.55 }}
+              className="max-w-xl border border-[#c89e58]/60 bg-black/45 p-4 backdrop-blur-sm"
+            >
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c89e58]">
+                Lojalitetsprogram
+              </p>
+              <p className="mt-2 text-sm leading-6 text-white/85 sm:text-base">
+                Bruk samme e-post hver gang du bestiller klipp. Etter 10 klipp bestillinger får du
+                én gratis klipp. Du kan bruke én gratis klipp per år. Tellingen startet 12.06.2026,
+                og bestillinger før denne datoen teller ikke.
+              </p>
+              <Link href="/privacy" className="mt-3 inline-block text-sm text-[#c89e58] underline">
+                Les mer om hvordan vi bruker e-post
+              </Link>
+            </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

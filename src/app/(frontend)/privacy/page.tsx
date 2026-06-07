@@ -43,6 +43,10 @@ const PrivacyPage = () => {
             riktig, må du bruke samme e-postadresse hver gang du bestiller.
           </p>
           <p>
+            Tellingen i lojalitetsprogrammet startet 12.06.2026. Bestillinger før denne datoen
+            teller ikke med i lojalitetsprogrammet.
+          </p>
+          <p>
             Vi bruker kun nødvendig informasjon for dette formålet: e-postadresse,
             bestillingshistorikk, valgt tjeneste og status på bestillingen. Opplysningene selges
             ikke og deles ikke med andre. Du kan når som helst kontakte oss hvis du ønsker innsyn,
