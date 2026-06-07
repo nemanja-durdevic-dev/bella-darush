@@ -56,10 +56,10 @@ const Landing = () => {
               </p>
               <p className="mt-2 text-sm leading-6 text-white/85 sm:text-base">
                 Bruk samme e-post hver gang du bestiller klipp. Etter 10 klipp bestillinger får du
-                én gratis klipp.
+                én gratis klipp. Det er kun mulig å bruke én gratis klipp per år.
               </p>
               <Link href="/privacy" className="mt-3 inline-block text-sm text-[#c89e58] underline">
-                Les mer om
+                Les mer om lojalitetsprogrammet
               </Link>
             </motion.div>
             <motion.div
