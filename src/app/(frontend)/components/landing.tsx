@@ -59,7 +59,7 @@ const Landing = () => {
                 én gratis klipp.
               </p>
               <Link href="/privacy" className="mt-3 inline-block text-sm text-[#c89e58] underline">
-                Les mer om hvordan vi bruker e-post
+                Les mer om
               </Link>
             </motion.div>
             <motion.div
