@@ -21,6 +21,11 @@ import {
   generateRebookingReminderText,
 } from '@/email/templates/appointment-rebooking-reminder'
 import {
+  generateReviewReminderHTML,
+  generateReviewReminderSubject,
+  generateReviewReminderText,
+} from '@/email/templates/appointment-review-reminder'
+import {
   generateReminderHTML,
   generateReminderSubject,
   generateReminderText,
@@ -209,6 +214,12 @@ const previews = [
     subject: generateRebookingReminderSubject(emailData),
     html: generateRebookingReminderHTML(emailData),
     text: generateRebookingReminderText(emailData),
+  },
+  {
+    title: 'Google Review Reminder',
+    subject: generateReviewReminderSubject(),
+    html: generateReviewReminderHTML(emailData),
+    text: generateReviewReminderText(emailData),
   },
 ]
 

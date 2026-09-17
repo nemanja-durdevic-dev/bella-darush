@@ -30,6 +30,11 @@ import {
   generateRebookingReminderSubject,
   generateRebookingReminderText,
 } from '../templates/appointment-rebooking-reminder'
+import {
+  generateReviewReminderHTML,
+  generateReviewReminderSubject,
+  generateReviewReminderText,
+} from '../templates/appointment-review-reminder'
 
 /**
  * Email sending result
@@ -188,6 +193,35 @@ export async function sendRebookingReminder(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error(`❌ Failed to send rebooking reminder email to ${customer.email}:`, errorMessage)
+    return { success: false, error: errorMessage }
+  }
+}
+
+/**
+ * Send Google review reminder email to customer after appointment
+ */
+export async function sendReviewReminder(
+  payload: Payload,
+  appointment: Appointment,
+  customer: Customer,
+  services: Service[],
+  worker: Worker,
+): Promise<EmailResult> {
+  try {
+    const emailData = { appointment, customer, services, worker }
+
+    await payload.sendEmail({
+      to: customer.email,
+      subject: generateReviewReminderSubject(),
+      html: generateReviewReminderHTML(emailData),
+      text: generateReviewReminderText(emailData),
+    })
+
+    console.log(`✅ Review reminder email sent to ${customer.email} for appointment ${appointment.id}`)
+    return { success: true }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error(`❌ Failed to send review reminder email to ${customer.email}:`, errorMessage)
     return { success: false, error: errorMessage }
   }
 }
