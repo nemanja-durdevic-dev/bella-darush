@@ -13,6 +13,7 @@ import * as migration_20260607_120000_add_appointment_loyalty from './20260607_1
 import * as migration_20260607_130000_add_service_loyalty_flag from './20260607_130000_add_service_loyalty_flag'
 import * as migration_20260607_140000_normalize_customer_emails from './20260607_140000_normalize_customer_emails'
 import * as migration_20260917_200000_add_review_reminder_tracking from './20260917_200000_add_review_reminder_tracking'
+import * as migration_20260917_210000_move_review_reminder_tracking_to_customers from './20260917_210000_move_review_reminder_tracking_to_customers'
 
 export const migrations = [
   {
@@ -89,5 +90,10 @@ export const migrations = [
     up: migration_20260917_200000_add_review_reminder_tracking.up,
     down: migration_20260917_200000_add_review_reminder_tracking.down,
     name: '20260917_200000_add_review_reminder_tracking',
+  },
+  {
+    up: migration_20260917_210000_move_review_reminder_tracking_to_customers.up,
+    down: migration_20260917_210000_move_review_reminder_tracking_to_customers.down,
+    name: '20260917_210000_move_review_reminder_tracking_to_customers',
   },
 ]

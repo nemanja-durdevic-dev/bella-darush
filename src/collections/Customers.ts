@@ -51,6 +51,25 @@ export const Customers: CollectionConfig = {
         description: 'Internal notes about this customer',
       },
     },
+    {
+      name: 'reviewReminderSent',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        readOnly: true,
+        description: 'Google review reminder email sent',
+      },
+    },
+    {
+      name: 'reviewReminderSentAt',
+      type: 'date',
+      admin: {
+        readOnly: true,
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+      },
+    },
   ],
   timestamps: true,
 }

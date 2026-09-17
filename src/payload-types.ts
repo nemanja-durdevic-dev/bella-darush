@@ -391,6 +391,11 @@ export interface Customer {
    * Internal notes about this customer
    */
   notes?: string | null;
+  /**
+   * Google review reminder email sent
+   */
+  reviewReminderSent?: boolean | null;
+  reviewReminderSentAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -473,11 +478,6 @@ export interface Appointment {
      */
     rebookingReminderSent?: boolean | null;
     rebookingReminderSentAt?: string | null;
-    /**
-     * Google review reminder email sent
-     */
-    reviewReminderSent?: boolean | null;
-    reviewReminderSentAt?: string | null;
     /**
      * Cancellation email sent
      */
@@ -728,6 +728,8 @@ export interface CustomersSelect<T extends boolean = true> {
   email?: T;
   phone?: T;
   notes?: T;
+  reviewReminderSent?: T;
+  reviewReminderSentAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -763,8 +765,6 @@ export interface AppointmentsSelect<T extends boolean = true> {
         reminderSentAt?: T;
         rebookingReminderSent?: T;
         rebookingReminderSentAt?: T;
-        reviewReminderSent?: T;
-        reviewReminderSentAt?: T;
         cancellationSent?: T;
         cancellationSentAt?: T;
       };

@@ -87,7 +87,7 @@ export async function GET(request: Request): Promise<Response> {
     scanned: 0,
     sent: 0,
     failed: 0,
-    skippedAlreadySent: 0,
+    skippedCustomerAlreadySent: 0,
     skippedInvalidData: 0,
     skippedMissingDateTime: 0,
     skippedFutureAppointment: 0,
@@ -121,11 +121,6 @@ export async function GET(request: Request): Promise<Response> {
     for (const appointment of result.docs as Appointment[]) {
       stats.scanned += 1
 
-      if (appointment.emailsSent?.reviewReminderSent) {
-        stats.skippedAlreadySent += 1
-        continue
-      }
-
       const appointmentDateTime = parseAppointmentDateTime(
         appointment.appointmentDate,
         appointment.appointmentTime,
@@ -152,6 +147,11 @@ export async function GET(request: Request): Promise<Response> {
         continue
       }
 
+      if (customer.reviewReminderSent) {
+        stats.skippedCustomerAlreadySent += 1
+        continue
+      }
+
       const sendResult = await sendReviewReminder(payload, appointment, customer, services, worker)
 
       if (!sendResult.success) {
@@ -160,16 +160,12 @@ export async function GET(request: Request): Promise<Response> {
       }
 
       await payload.update({
-        collection: 'appointments',
-        id: appointment.id,
+        collection: 'customers',
+        id: customer.id,
         data: {
-          emailsSent: {
-            ...appointment.emailsSent,
-            reviewReminderSent: true,
-            reviewReminderSentAt: new Date().toISOString(),
-          },
+          reviewReminderSent: true,
+          reviewReminderSentAt: new Date().toISOString(),
         },
-        context: { skipEmails: true },
       })
 
       stats.sent += 1

@@ -296,25 +296,6 @@ export const Appointments: CollectionConfig = {
           },
         },
         {
-          name: 'reviewReminderSent',
-          type: 'checkbox',
-          defaultValue: false,
-          admin: {
-            readOnly: true,
-            description: 'Google review reminder email sent',
-          },
-        },
-        {
-          name: 'reviewReminderSentAt',
-          type: 'date',
-          admin: {
-            readOnly: true,
-            date: {
-              pickerAppearance: 'dayAndTime',
-            },
-          },
-        },
-        {
           name: 'cancellationSent',
           type: 'checkbox',
           defaultValue: false,
