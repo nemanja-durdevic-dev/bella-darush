@@ -4,6 +4,7 @@
   "description": "A Next.js application built with Payload CMS, featuring a custom admin dashboard and a public-facing website for Bella Frisør.",
   "license": "MIT",
   "type": "module",
+  "packageManager": "pnpm@10.28.0",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
@@ -72,8 +73,8 @@
     "vitest": "4.0.18"
   },
   "engines": {
-    "node": "^18.20.2 || >=20.9.0",
-    "pnpm": "^9 || ^10"
+    "node": "22.x",
+    "pnpm": "10.x"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
