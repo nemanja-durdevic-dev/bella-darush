@@ -1,19 +1,20 @@
-import * as migration_20260208_204032 from './20260208_204032'
-import * as migration_20260209_110605 from './20260209_110605'
-import * as migration_20260226_181736_add_service_groups from './20260226_181736_add_service_groups'
-import * as migration_20260226_182825_add_sort_order_to_service_groups_and_services from './20260226_182825_add_sort_order_to_service_groups_and_services'
-import * as migration_20260226_183343_service_groups_many_to_many_with_service_order from './20260226_183343_service_groups_many_to_many_with_service_order'
-import * as migration_20260226_183956_remove_service_group_row_sort_order from './20260226_183956_remove_service_group_row_sort_order'
-import * as migration_20260227_120000_add_workers_description from './20260227_120000_add_workers_description'
-import * as migration_20260302_100000_add_send_emails_to_appointments from './20260302_100000_add_send_emails_to_appointments'
-import * as migration_20260306_095400 from './20260306_095400'
-import * as migration_20260421_120000_add_worker_to_schedule_overrides from './20260421_120000_add_worker_to_schedule_overrides'
-import * as migration_20260424_090000_add_worker_sort_order from './20260424_090000_add_worker_sort_order'
-import * as migration_20260607_120000_add_appointment_loyalty from './20260607_120000_add_appointment_loyalty'
-import * as migration_20260607_130000_add_service_loyalty_flag from './20260607_130000_add_service_loyalty_flag'
-import * as migration_20260607_140000_normalize_customer_emails from './20260607_140000_normalize_customer_emails'
-import * as migration_20260917_200000_add_review_reminder_tracking from './20260917_200000_add_review_reminder_tracking'
-import * as migration_20260917_210000_move_review_reminder_tracking_to_customers from './20260917_210000_move_review_reminder_tracking_to_customers'
+import * as migration_20260208_204032 from './20260208_204032';
+import * as migration_20260209_110605 from './20260209_110605';
+import * as migration_20260226_181736_add_service_groups from './20260226_181736_add_service_groups';
+import * as migration_20260226_182825_add_sort_order_to_service_groups_and_services from './20260226_182825_add_sort_order_to_service_groups_and_services';
+import * as migration_20260226_183343_service_groups_many_to_many_with_service_order from './20260226_183343_service_groups_many_to_many_with_service_order';
+import * as migration_20260226_183956_remove_service_group_row_sort_order from './20260226_183956_remove_service_group_row_sort_order';
+import * as migration_20260227_120000_add_workers_description from './20260227_120000_add_workers_description';
+import * as migration_20260302_100000_add_send_emails_to_appointments from './20260302_100000_add_send_emails_to_appointments';
+import * as migration_20260306_095400 from './20260306_095400';
+import * as migration_20260421_120000_add_worker_to_schedule_overrides from './20260421_120000_add_worker_to_schedule_overrides';
+import * as migration_20260424_090000_add_worker_sort_order from './20260424_090000_add_worker_sort_order';
+import * as migration_20260607_120000_add_appointment_loyalty from './20260607_120000_add_appointment_loyalty';
+import * as migration_20260607_130000_add_service_loyalty_flag from './20260607_130000_add_service_loyalty_flag';
+import * as migration_20260607_140000_normalize_customer_emails from './20260607_140000_normalize_customer_emails';
+import * as migration_20260917_200000_add_review_reminder_tracking from './20260917_200000_add_review_reminder_tracking';
+import * as migration_20260917_210000_move_review_reminder_tracking_to_customers from './20260917_210000_move_review_reminder_tracking_to_customers';
+import * as migration_20261004_200721_add_schedule_override_available_services from './20261004_200721_add_schedule_override_available_services';
 
 export const migrations = [
   {
@@ -96,4 +97,9 @@ export const migrations = [
     down: migration_20260917_210000_move_review_reminder_tracking_to_customers.down,
     name: '20260917_210000_move_review_reminder_tracking_to_customers',
   },
-]
+  {
+    up: migration_20261004_200721_add_schedule_override_available_services.up,
+    down: migration_20261004_200721_add_schedule_override_available_services.down,
+    name: '20261004_200721_add_schedule_override_available_services'
+  },
+];
