@@ -30,6 +30,7 @@ type ScheduleOverrideLike = {
       }[]
     | null
   worker?: string | { id: string } | null
+  availableServices?: unknown
 }
 
 /**
@@ -132,7 +133,7 @@ export async function getNextAvailableSlotsForServices(
 
   const entries = await Promise.all(
     uniqueServiceIds.map(async (serviceId) => {
-      const workers = await getWorkersForService(serviceId)
+      const workers = await getActiveWorkersForBooking()
 
       if (workers.length === 0) {
         return [serviceId, null] as const
@@ -175,13 +176,13 @@ export async function getNextAvailableSlotsForServices(
  * Get workers available for all selected services
  */
 export async function getWorkersForServices(serviceIds: string[]) {
+  const workers = await getActiveWorkersForBooking()
+
+  return filterWorkersByServiceIds(workers, serviceIds, new Map())
+}
+
+export async function getActiveWorkersForBooking() {
   const payload = await getPayload({ config })
-
-  const uniqueServiceIds = Array.from(new Set(serviceIds.filter(Boolean)))
-
-  if (uniqueServiceIds.length === 0) {
-    return []
-  }
 
   const workers = await payload.find({
     collection: 'workers',
@@ -192,17 +193,15 @@ export async function getWorkersForServices(serviceIds: string[]) {
     limit: 100,
   })
 
-  return workers.docs.filter((worker) => {
-    const workerServiceIds = new Set(
-      (worker.services ?? []).map((service) =>
-        typeof service === 'string' || typeof service === 'number'
-          ? String(service)
-          : String(service.id),
-      ),
-    )
+  return workers.docs
+}
 
-    return uniqueServiceIds.every((serviceId) => workerServiceIds.has(serviceId))
-  })
+export async function getWorkersForServicesOnDate(serviceIds: string[], date: string) {
+  const payload = await getPayload({ config })
+  const workers = await getActiveWorkersForBooking()
+  const overridesByWorkerId = await getWorkerOverridesByDate(payload, date)
+
+  return filterWorkersByServiceIds(workers, serviceIds, overridesByWorkerId)
 }
 
 /**
@@ -426,7 +425,7 @@ export async function getAvailableTimeSlotsForDate(
     return { timeslots: [], slotWorkerMap: {}, availableWorkerIds: [] }
   }
 
-  const workers = await getWorkersForServices(serviceIds)
+  const workers = await getWorkersForServicesOnDate(serviceIds, date)
   if (workers.length === 0) {
     return { timeslots: [], slotWorkerMap: {}, availableWorkerIds: [] }
   }
@@ -477,6 +476,43 @@ export async function getAvailableTimeSlotsForDate(
     slotWorkerMap,
     availableWorkerIds,
   }
+}
+
+export async function getAvailableDatesForRange(
+  serviceIds: string[],
+  startDate: string,
+  endDate: string,
+  workerId?: string,
+): Promise<Record<string, boolean>> {
+  if (!startDate || !endDate || serviceIds.length === 0 || startDate > endDate) {
+    return {}
+  }
+
+  const [startYear, startMonth, startDay] = startDate.split('-').map(Number)
+  const [endYear, endMonth, endDay] = endDate.split('-').map(Number)
+  const start = new Date(startYear, startMonth - 1, startDay)
+  const end = new Date(endYear, endMonth - 1, endDay)
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return {}
+  }
+
+  const dates: string[] = []
+  const cursor = new Date(start)
+
+  while (cursor <= end && dates.length <= 62) {
+    dates.push(formatLocalDate(cursor))
+    cursor.setDate(cursor.getDate() + 1)
+  }
+
+  const entries = await Promise.all(
+    dates.map(async (date) => {
+      const { timeslots } = await getAvailableTimeSlotsForDate(serviceIds, date, workerId)
+      return [date, timeslots.length > 0] as const
+    }),
+  )
+
+  return Object.fromEntries(entries)
 }
 
 /**
@@ -609,6 +645,12 @@ export async function getAvailableTimeSlotsForNext9Days(
     const dateOverrides = overridesMap.get(dateStr) ?? []
     const workerSpecificOverride = getWorkerSpecificOverride(dateOverrides, workerId)
     const override = resolveScheduleOverride(dateOverrides, workerId)
+
+    if (!workerOffersAllServices(worker, serviceIds, workerSpecificOverride)) {
+      result.push({ day: dateStr, timeslots: [] })
+      continue
+    }
+
     if (override) {
       isClosed = override.isClosed ?? false
       baseRanges = getOverrideTimeRanges(override)
@@ -935,6 +977,70 @@ function getWorkerSpecificOverride(
   workerId: string,
 ): ScheduleOverrideLike | null {
   return overrides.find((override) => getWorkerIdFromOverride(override) === workerId) ?? null
+}
+
+type BookingWorker = Awaited<ReturnType<typeof getActiveWorkersForBooking>>[number]
+
+async function getWorkerOverridesByDate(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  date: string,
+): Promise<Map<string, ScheduleOverrideLike>> {
+  const { startOfDay, endOfDay } = getLocalDayRange(date)
+  const overrides = await payload.find({
+    collection: 'schedule-overrides',
+    where: {
+      and: [{ date: { greater_than_equal: startOfDay } }, { date: { less_than_equal: endOfDay } }],
+    },
+    sort: '-createdAt',
+    limit: 100,
+    depth: 0,
+  })
+
+  const overridesByWorkerId = new Map<string, ScheduleOverrideLike>()
+
+  for (const override of overrides.docs) {
+    const workerId = getWorkerIdFromOverride(override)
+    if (workerId && !overridesByWorkerId.has(workerId)) {
+      overridesByWorkerId.set(workerId, override)
+    }
+  }
+
+  return overridesByWorkerId
+}
+
+function filterWorkersByServiceIds(
+  workers: BookingWorker[],
+  serviceIds: string[],
+  overridesByWorkerId: Map<string, ScheduleOverrideLike>,
+): BookingWorker[] {
+  const uniqueServiceIds = Array.from(new Set(serviceIds.filter(Boolean)))
+
+  if (uniqueServiceIds.length === 0) {
+    return []
+  }
+
+  return workers.filter((worker) => {
+    const override = overridesByWorkerId.get(String(worker.id)) ?? null
+    return workerOffersAllServices(worker, uniqueServiceIds, override)
+  })
+}
+
+function workerOffersAllServices(
+  worker: { services?: unknown },
+  serviceIds: string[],
+  override: ScheduleOverrideLike | null,
+): boolean {
+  if (override?.isClosed) {
+    return false
+  }
+
+  const overrideServiceIds = override ? getServiceIdsFromValue(override.availableServices) : []
+  const offeredServiceIds = overrideServiceIds.length
+    ? overrideServiceIds
+    : getServiceIdsFromValue(worker.services)
+  const offeredServiceIdSet = new Set(offeredServiceIds)
+
+  return serviceIds.every((serviceId) => offeredServiceIdSet.has(serviceId))
 }
 
 function getTodayLocalDate(): string {

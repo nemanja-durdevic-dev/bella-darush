@@ -1,6 +1,6 @@
 import {
+  getActiveWorkersForBooking,
   getServicesByIds,
-  getWorkersForServices,
 } from '../actions'
 import { datetimeStepSchema } from '../validation'
 import { redirect } from 'next/navigation'
@@ -30,7 +30,7 @@ export default async function DateTimeSelectionPage({
     redirect('/appointment/service')
   }
 
-  const workers = await getWorkersForServices(serviceIds)
+  const workers = await getActiveWorkersForBooking()
   if (!workers.length) {
     return (
       <div className="space-y-4">

@@ -133,6 +133,20 @@ export const ScheduleOverrides: CollectionConfig = {
       },
     },
     {
+      name: 'availableServices',
+      type: 'relationship',
+      relationTo: 'services',
+      hasMany: true,
+      filterOptions: {
+        isActive: { equals: true },
+      },
+      admin: {
+        description:
+          'Optional: for this worker and date only, replace the worker\'s normal services with these services. Leave empty to use the worker\'s normal services.',
+        condition: (data) => Boolean(data?.worker) && !data?.isClosed,
+      },
+    },
+    {
       name: 'timeRanges',
       type: 'array',
       admin: {

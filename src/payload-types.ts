@@ -350,6 +350,10 @@ export interface ScheduleOverride {
    */
   isClosed?: boolean | null;
   /**
+   * Optional: for this worker and date only, replace the worker's normal services with these services. Leave empty to use the worker's normal services.
+   */
+  availableServices?: (string | Service)[] | null;
+  /**
    * Optional: multiple open blocks (e.g., 08:00–12:00 and 14:00–17:00). If empty, the single open/close time below is used.
    */
   timeRanges?:
@@ -707,6 +711,7 @@ export interface ScheduleOverridesSelect<T extends boolean = true> {
   date?: T;
   reason?: T;
   isClosed?: T;
+  availableServices?: T;
   timeRanges?:
     | T
     | {

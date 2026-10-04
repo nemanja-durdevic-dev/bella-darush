@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { ChevronDown, ChevronLeft, ChevronRight, Info } from 'lucide-react'
-import { getAvailableTimeSlotsForDate } from '../actions'
+import { getAvailableDatesForRange, getAvailableTimeSlotsForDate } from '../actions'
 import type { DaySlotsData, TimeSlotGridProps } from '../types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -95,6 +95,9 @@ export function TimeSlotGrid({
     getMonthStart(fromDateKey(today)),
   )
   const [slotsByDate, setSlotsByDate] = useState<Record<string, DaySlotsData>>({})
+  const [dateAvailabilityByDate, setDateAvailabilityByDate] = useState<Record<string, boolean>>({})
+  const [isLoadingDateAvailability, setIsLoadingDateAvailability] = useState(false)
+  const [dateAvailabilityError, setDateAvailabilityError] = useState<string | null>(null)
   const [isLoadingSlots, setIsLoadingSlots] = useState(false)
   const [slotsError, setSlotsError] = useState<string | null>(null)
   const [shouldFocusSlots, setShouldFocusSlots] = useState(false)
@@ -137,6 +140,20 @@ export function TimeSlotGrid({
     return days
   }, [displayedMonth])
 
+  const dateAvailabilityRange = useMemo(() => {
+    const firstDate = calendarDays[0]
+    const lastDate = calendarDays[calendarDays.length - 1]
+
+    if (!firstDate || !lastDate) {
+      return null
+    }
+
+    return {
+      start: toDateKey(firstDate),
+      end: toDateKey(lastDate),
+    }
+  }, [calendarDays])
+
   useEffect(() => {
     const imageUrls = workers
       .map((worker) => worker.imageUrl)
@@ -151,7 +168,49 @@ export function TimeSlotGrid({
   useEffect(() => {
     setSlotsByDate({})
     setSlotsError(null)
+    setDateAvailabilityByDate({})
+    setDateAvailabilityError(null)
   }, [servicesKey, selectedWorkerId])
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchDateAvailability() {
+      if (!dateAvailabilityRange) return
+
+      setIsLoadingDateAvailability(true)
+      setDateAvailabilityError(null)
+
+      try {
+        const availability = await getAvailableDatesForRange(
+          serviceIds,
+          dateAvailabilityRange.start,
+          dateAvailabilityRange.end,
+          selectedWorkerId,
+        )
+
+        if (!isMounted) return
+
+        setDateAvailabilityByDate(availability)
+      } catch (error) {
+        if (!isMounted) return
+
+        console.error('Failed to fetch date availability:', error)
+        setDateAvailabilityByDate({})
+        setDateAvailabilityError('Kunne ikke hente tilgjengelige datoer.')
+      } finally {
+        if (isMounted) {
+          setIsLoadingDateAvailability(false)
+        }
+      }
+    }
+
+    fetchDateAvailability()
+
+    return () => {
+      isMounted = false
+    }
+  }, [dateAvailabilityRange, selectedWorkerId, serviceIds])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -225,6 +284,14 @@ export function TimeSlotGrid({
     const query = getDatetimeQuery()
     router.replace(`/appointment/datetime?${query.toString()}`)
   }, [router, selectedDate, selectedDateData, selectedWorkerId, serviceIds])
+
+  useEffect(() => {
+    if (!selectedDate || dateAvailabilityByDate[selectedDate] !== false) {
+      return
+    }
+
+    setSelectedDate(null)
+  }, [dateAvailabilityByDate, selectedDate])
 
   const getDatetimeQuery = (workerId?: string) => {
     const query = new URLSearchParams()
@@ -412,7 +479,15 @@ export function TimeSlotGrid({
               const inCurrentMonth = sameMonth(date, displayedMonth)
               const isPast = dateKey < today
               const isSelected = selectedDate === dateKey
-              const isDisabled = !inCurrentMonth || isPast
+              const dateAvailability = dateAvailabilityByDate[dateKey]
+              const isCheckingAvailability =
+                inCurrentMonth &&
+                !isPast &&
+                isLoadingDateAvailability &&
+                dateAvailability === undefined
+              const hasNoAvailability = dateAvailability === false
+              const isDisabled =
+                !inCurrentMonth || isPast || isCheckingAvailability || hasNoAvailability
               const isLoadingSelectedDate = isSelected && isLoadingSlots && !selectedDateData
 
               return (
@@ -440,6 +515,9 @@ export function TimeSlotGrid({
               )
             })}
           </div>
+          {dateAvailabilityError ? (
+            <p className="mt-3 text-xs text-slate-500">{dateAvailabilityError}</p>
+          ) : null}
         </div>
 
         <div ref={timeslotSectionRef} className="space-y-2">
