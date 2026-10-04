@@ -439,81 +439,76 @@ export function TimeSlotGrid({
       </div>
 
       <div className="space-y-10 ">
-        <div className="bg-white">
-          <div className="mb-3 flex items-center justify-between">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-9 w-9 border-slate-300 bg-white p-0 text-slate-900 hover:bg-slate-50 disabled:opacity-40"
-              disabled={!canGoPrevMonth}
-              onClick={() => setDisplayedMonth((current) => addMonths(current, -1))}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span className="sr-only">Forrige måned</span>
-            </Button>
-            <p className="text-sm font-semibold capitalize text-slate-900">
-              {MONTH_FORMATTER.format(displayedMonth)}
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-9 w-9 border-slate-300 bg-white p-0 text-slate-900 hover:bg-slate-50"
-              onClick={() => setDisplayedMonth((current) => addMonths(current, 1))}
-            >
-              <ChevronRight className="h-4 w-4" />
-              <span className="sr-only">Neste måned</span>
-            </Button>
-          </div>
+        <div className="relative bg-white">
+          <div>
+            <div className="mb-3 flex items-center justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-9 w-9 border-slate-300 bg-white p-0 text-slate-900 hover:bg-slate-50 disabled:opacity-40"
+                disabled={!canGoPrevMonth}
+                onClick={() => setDisplayedMonth((current) => addMonths(current, -1))}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="sr-only">Forrige måned</span>
+              </Button>
+              <p className="text-sm font-semibold capitalize text-slate-900">
+                {MONTH_FORMATTER.format(displayedMonth)}
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-9 w-9 border-slate-300 bg-white p-0 text-slate-900 hover:bg-slate-50"
+                onClick={() => setDisplayedMonth((current) => addMonths(current, 1))}
+              >
+                <ChevronRight className="h-4 w-4" />
+                <span className="sr-only">Neste måned</span>
+              </Button>
+            </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-xs uppercase tracking-wide text-slate-500">
-            {WEEKDAY_LABELS.map((day) => (
-              <span key={day} className="py-2">
-                {day}
-              </span>
-            ))}
-          </div>
+            <div className="grid grid-cols-7 gap-1 text-center text-xs uppercase tracking-wide text-slate-500">
+              {WEEKDAY_LABELS.map((day) => (
+                <span key={day} className="py-2">
+                  {day}
+                </span>
+              ))}
+            </div>
 
-          <div className="grid grid-cols-7 gap-1">
-            {calendarDays.map((date) => {
-              const dateKey = toDateKey(date)
-              const inCurrentMonth = sameMonth(date, displayedMonth)
-              const isPast = dateKey < today
-              const isSelected = selectedDate === dateKey
-              const dateAvailability = dateAvailabilityByDate[dateKey]
-              const isCheckingAvailability =
-                inCurrentMonth &&
-                !isPast &&
-                isLoadingDateAvailability &&
-                dateAvailability === undefined
-              const hasNoAvailability = dateAvailability === false
-              const isDisabled =
-                !inCurrentMonth || isPast || isCheckingAvailability || hasNoAvailability
-              const isLoadingSelectedDate = isSelected && isLoadingSlots && !selectedDateData
+            <div className="grid grid-cols-7 gap-1">
+              {calendarDays.map((date) => {
+                const dateKey = toDateKey(date)
+                const inCurrentMonth = sameMonth(date, displayedMonth)
+                const isPast = dateKey < today
+                const isSelected = selectedDate === dateKey
+                const dateAvailability = dateAvailabilityByDate[dateKey]
+                const isDisabled = !inCurrentMonth || isPast || dateAvailability !== true
+                const isLoadingSelectedDate = isSelected && isLoadingSlots && !selectedDateData
 
-              return (
-                <button
-                  key={dateKey}
-                  type="button"
-                  disabled={isDisabled}
-                  onClick={() => {
-                    setSelectedDate(dateKey)
-                    setShouldFocusSlots(true)
-                  }}
-                  className={`h-11 border text-sm transition-colors ${
-                    isSelected
-                      ? 'border-[#c89e58] bg-[#c89e58]/20 text-slate-900'
-                      : isDisabled
-                        ? 'border-slate-200 bg-slate-50 text-slate-300'
-                        : 'border-slate-200 bg-white text-slate-900 hover:bg-slate-50'
-                  }`}
-                >
-                  <span>{date.getDate()}</span>
-                  {isLoadingSelectedDate ? (
-                    <span className="mx-auto mt-1 block h-3 w-3 rounded-full border-2 border-[#c89e58]/30 border-t-[#c89e58] animate-spin" />
-                  ) : null}
-                </button>
-              )
-            })}
+                return (
+                  <button
+                    key={dateKey}
+                    type="button"
+                    disabled={isDisabled}
+                    onClick={() => {
+                      setSelectedDate(dateKey)
+                      setShouldFocusSlots(true)
+                    }}
+                    className={`h-11 border text-sm transition-colors ${
+                      isSelected
+                        ? 'border-[#c89e58] bg-[#c89e58]/20 text-slate-900'
+                        : isDisabled
+                          ? 'border-slate-200 bg-slate-50 text-slate-300'
+                          : 'border-slate-200 bg-white text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>{date.getDate()}</span>
+                    {isLoadingSelectedDate ? (
+                      <span className="mx-auto mt-1 block h-3 w-3 rounded-full border-2 border-[#c89e58]/30 border-t-[#c89e58] animate-spin" />
+                    ) : null}
+                  </button>
+                )
+              })}
+            </div>
           </div>
           {dateAvailabilityError ? (
             <p className="mt-3 text-xs text-slate-500">{dateAvailabilityError}</p>
