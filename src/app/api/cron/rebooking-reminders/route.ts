@@ -72,6 +72,7 @@ export async function GET(request: Request): Promise<Response> {
     sent: 0,
     failed: 0,
     skippedAlreadySent: 0,
+    skippedNewerAppointment: 0,
     skippedInvalidData: 0,
   }
 
@@ -116,6 +117,24 @@ export async function GET(request: Request): Promise<Response> {
 
       if (!validateEmailData(customer, services, worker)) {
         stats.skippedInvalidData += 1
+        continue
+      }
+
+      const newerAppointments = await payload.find({
+        collection: 'appointments',
+        where: {
+          and: [
+            { customer: { equals: customer.id } },
+            { status: { in: ['confirmed', 'completed'] } },
+            { appointmentDate: { greater_than: appointment.appointmentDate } },
+          ],
+        },
+        depth: 0,
+        limit: 1,
+      })
+
+      if (newerAppointments.totalDocs > 0) {
+        stats.skippedNewerAppointment += 1
         continue
       }
 
